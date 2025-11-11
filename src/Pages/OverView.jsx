@@ -201,6 +201,8 @@ const DomainMonitoringForm = () => {
 const EmailMonitoringForm = () => {
   const [frequency, setFrequency] = useState("Weekly");
   const [fileName, setFileName] = useState("No file chosen");
+  const [uploadMode, setUploadMode] = useState("upload");
+  const [manualEmails, setManualEmails] = useState("");
 
   const handleFileChange = (e) => {
     if (e.target.files.length > 0) {
@@ -212,8 +214,13 @@ const EmailMonitoringForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Email Monitoring Started:", { frequency, file: fileName });
-    alert(`Email list (${fileName}) uploaded! Frequency: ${frequency}`); // Using alert() for demonstration, replace with modal in real app
+    if (uploadMode === "manual") {
+      console.log("Manual Emails:", manualEmails);
+      alert(`Manual emails submitted! Frequency: ${frequency}`);
+    } else {
+      console.log("Email Monitoring Started:", { frequency, file: fileName });
+      alert(`Email list (${fileName}) uploaded! Frequency: ${frequency}`);
+    }
   };
 
   return (
@@ -224,7 +231,7 @@ const EmailMonitoringForm = () => {
           <span>Monitor Email Addresses</span>
         </h4>
         <p className="text-sm text-gray-400">
-          Upload a list of employee email addresses to monitor for data breaches
+          Upload or enter a list of employee email addresses to monitor for data breaches
         </p>
       </div>
 
@@ -236,28 +243,70 @@ const EmailMonitoringForm = () => {
         <MonitoringFrequency selected={frequency} setSelected={setFrequency} />
       </div>
 
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-300">
-          Upload Email List (CSV/TXT)
-        </label>
-        <div className="flex items-center space-x-2">
-          <label className="cursor-pointer">
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="hidden"
-              accept=".csv,.txt"
-            />
-            <span className="px-4 py-2 bg-pink-600 text-white rounded-lg shadow-md hover:bg-pink-500 transition-colors">
-              Choose File
-            </span>
-          </label>
-          <span className="text-gray-400 truncate">{fileName}</span>
-        </div>
-        <p className="text-xs text-gray-500 mt-1">
-          Supported formats: CSV, TXT (one email per line)
-        </p>
+      {/* --- Option Buttons --- */}
+      <div className="flex space-x-4 mt-4">
+        <button
+          type="button"
+          onClick={() => setUploadMode("manual")}
+          className={`px-4 py-2 rounded-lg border ${
+            uploadMode === "manual"
+              ? "bg-pink-600 text-white border-pink-600"
+              : "border-gray-600 text-gray-300 hover:bg-gray-700"
+          }`}
+        >
+          Manual Entry
+        </button>
+        <button
+          type="button"
+          onClick={() => setUploadMode("upload")}
+          className={`px-4 py-2 rounded-lg border ${
+            uploadMode === "upload"
+              ? "bg-pink-600 text-white border-pink-600"
+              : "border-gray-600 text-gray-300 hover:bg-gray-700"
+          }`}
+        >
+          Upload by Excel/CSV
+        </button>
       </div>
+
+      {/* --- Conditional Inputs --- */}
+      {uploadMode === "manual" ? (
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-300">
+            Enter Emails
+          </label>
+          <input
+            type="email"
+            value={manualEmails}
+            onChange={(e) => setManualEmails(e.target.value)}
+            placeholder="example1@gmail.com"
+            className="w-full p-3 bg-gray-800 rounded-lg text-gray-200 border border-gray-700 focus:ring-2 focus:ring-pink-500 outline-none"
+          />
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-300">
+            Upload Email List (CSV/TXT)
+          </label>
+          <div className="flex items-center space-x-2">
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="hidden"
+                accept=".csv,.txt"
+              />
+              <span className="px-4 py-2 bg-pink-600 text-white rounded-lg shadow-md hover:bg-pink-500 transition-colors">
+                Choose File
+              </span>
+            </label>
+            <span className="text-gray-400 truncate">{fileName}</span>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Supported formats: CSV, TXT (one email per line)
+          </p>
+        </div>
+      )}
 
       <button
         type="submit"
@@ -265,7 +314,9 @@ const EmailMonitoringForm = () => {
                    bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 flex items-center justify-center space-x-2"
       >
         <UploadIcon className="h-5 w-5" />
-        <span>Upload & Start Monitoring</span>
+        <span>
+          {uploadMode === "manual" ? "Submit Emails" : "Upload & Start Monitoring"}
+        </span>
       </button>
     </form>
   );
