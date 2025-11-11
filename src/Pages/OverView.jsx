@@ -138,14 +138,40 @@ const MonitoringFrequency = ({ selected, setSelected }) => {
 // --- Main Content Components (Forms) ---
 
 // Component for the Domain Monitoring Tab
+import axios from "axios";
+import { toast } from "react-toastify";
+
 const DomainMonitoringForm = () => {
-  const [domainName, setDomainName] = useState("example.com");
+  const [domainName, setDomainName] = useState("");
   const [frequency, setFrequency] = useState("Weekly");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Domain Monitoring Started:", { domainName, frequency });
-    alert(`Domain: ${domainName} monitoring started! Frequency: ${frequency}`); // Using alert() for demonstration, replace with modal in real app
+
+    const payload = {
+      domain: domainName,
+      frequency: frequency.toLowerCase(),
+      notifyEmails: ["user@gmail.com"],
+      createdBy: "690da6d42407423d605f0807",
+    };
+
+    try {
+      const response = await axios.post(
+        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/domain",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Domain Monitoring Started:", response.data);
+      toast.success(` Monitoring started for ${domainName} (${frequency})`);
+    } catch (error) {
+      console.error("Error starting monitoring:", error);
+      toast.error(" Failed to start monitoring. Please try again.");
+    }
   };
 
   return (
@@ -197,29 +223,63 @@ const DomainMonitoringForm = () => {
   );
 };
 
-// Component for the Email Monitoring Tab
 const EmailMonitoringForm = () => {
   const [frequency, setFrequency] = useState("Weekly");
   const [fileName, setFileName] = useState("No file chosen");
+  const [file, setFile] = useState(null);
   const [uploadMode, setUploadMode] = useState("upload");
   const [manualEmails, setManualEmails] = useState("");
 
   const handleFileChange = (e) => {
     if (e.target.files.length > 0) {
       setFileName(e.target.files[0].name);
+      setFile(e.target.files[0]);
     } else {
       setFileName("No file chosen");
+      setFile(null);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Manual mode (no API call)
     if (uploadMode === "manual") {
       console.log("Manual Emails:", manualEmails);
-      alert(`Manual emails submitted! Frequency: ${frequency}`);
-    } else {
-      console.log("Email Monitoring Started:", { frequency, file: fileName });
-      alert(`Email list (${fileName}) uploaded! Frequency: ${frequency}`);
+      toast.success(`Manual emails submitted! Frequency: ${frequency}`);
+      return;
+    }
+
+    // ✅ Upload mode (API call)
+    if (!file) {
+      toast.error("Please upload a file before submitting!");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("frequency", frequency.toLowerCase());
+      formData.append("notifyEmails", "user@example.com");
+      formData.append("createdBy", "690da6d42407423d605f0807");
+
+      const res = await axios.post(
+        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Email Monitoring Started:", res.data);
+      toast.success(
+        ` ${fileName} uploaded successfully! Frequency: ${frequency}`
+      );
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error(" Failed to upload file. Please try again.");
     }
   };
 
@@ -231,7 +291,8 @@ const EmailMonitoringForm = () => {
           <span>Monitor Email Addresses</span>
         </h4>
         <p className="text-sm text-gray-400">
-          Upload or enter a list of employee email addresses to monitor for data breaches
+          Upload or enter a list of employee email addresses to monitor for data
+          breaches
         </p>
       </div>
 
@@ -286,7 +347,7 @@ const EmailMonitoringForm = () => {
       ) : (
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-300">
-            Upload Email List (CSV/TXT)
+            Upload Email List (CSV/Excel)
           </label>
           <div className="flex items-center space-x-2">
             <label className="cursor-pointer">
@@ -294,7 +355,7 @@ const EmailMonitoringForm = () => {
                 type="file"
                 onChange={handleFileChange}
                 className="hidden"
-                accept=".csv,.txt"
+                accept=".csv,.xlsx,.xls,.txt"
               />
               <span className="px-4 py-2 bg-pink-600 text-white rounded-lg shadow-md hover:bg-pink-500 transition-colors">
                 Choose File
@@ -303,7 +364,7 @@ const EmailMonitoringForm = () => {
             <span className="text-gray-400 truncate">{fileName}</span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Supported formats: CSV, TXT (one email per line)
+            Supported formats: CSV, XLSX, XLS, TXT (one email per line)
           </p>
         </div>
       )}
@@ -315,7 +376,9 @@ const EmailMonitoringForm = () => {
       >
         <UploadIcon className="h-5 w-5" />
         <span>
-          {uploadMode === "manual" ? "Submit Emails" : "Upload & Start Monitoring"}
+          {uploadMode === "manual"
+            ? "Submit Emails"
+            : "Upload & Start Monitoring"}
         </span>
       </button>
     </form>

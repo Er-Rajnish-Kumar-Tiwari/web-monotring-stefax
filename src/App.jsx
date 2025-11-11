@@ -7,6 +7,9 @@ import Overview from './Pages/OverView'
 import Icients from './Pages/Incient'
 import { Route, Routes } from 'react-router-dom'
 import Settings from './Pages/Settings'
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
+
 
 const App = () => {
   return (
@@ -20,6 +23,7 @@ const App = () => {
         <Route path='/settings' element={<Settings/>}/>
       </Routes>
       <Footer/>
+      <ToastContainer/>
     </div>
   )
 }
