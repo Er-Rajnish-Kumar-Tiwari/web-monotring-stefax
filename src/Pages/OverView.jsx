@@ -103,7 +103,7 @@ const StatsCard = ({ icon: Icon, title, value, description, color }) => (
 
 // Monitoring Frequency Radios
 const MonitoringFrequency = ({ selected, setSelected }) => {
-  const options = ["Daily", "Bi-weekly", "Weekly", "Monthly"];
+  const options = ["Check Now", "Daily", "Bi-weekly", "Weekly", "Monthly"];
   return (
     <div className="grid grid-cols-2 gap-4">
       {options.map((option) => (
@@ -173,6 +173,10 @@ const DomainMonitoringForm = () => {
       toast.error(" Failed to start monitoring. Please try again.");
     }
   };
+   const getButtonText = () => {
+    if (frequency === "Check Now") return "Check Now";
+    return "Start Monitoring";
+  };
 
   return (
     <form onSubmit={handleSubmit} className="p-8 space-y-6">
@@ -216,8 +220,7 @@ const DomainMonitoringForm = () => {
         className="w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300
                    bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 flex items-center justify-center space-x-2"
       >
-        <RefreshIcon className="h-5 w-5" />
-        <span>Start Monitoring</span>
+        <span>{getButtonText()}</span>
       </button>
     </form>
   );
@@ -230,6 +233,7 @@ const EmailMonitoringForm = () => {
   const [uploadMode, setUploadMode] = useState("upload");
   const [manualEmails, setManualEmails] = useState("");
 
+  // ✅ Handle file input
   const handleFileChange = (e) => {
     if (e.target.files.length > 0) {
       setFileName(e.target.files[0].name);
@@ -240,17 +244,42 @@ const EmailMonitoringForm = () => {
     }
   };
 
+  // ✅ Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Manual mode (no API call)
     if (uploadMode === "manual") {
-      console.log("Manual Emails:", manualEmails);
-      toast.success(`Manual emails submitted! Frequency: ${frequency}`);
+      if (!manualEmails.trim()) {
+        toast.error("Please enter a domain or email before submitting!");
+        return;
+      }
+
+      try {
+        const body = {
+          domain: manualEmails.trim(), // 👈 Manual entry domain/email
+          frequency: frequency.toLowerCase(),
+          notifyEmails: ["user@gmail.com"],
+          createdBy: "6911e77cf1fe8011a0dcc486",
+        };
+
+        const res = await axios.post(
+          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/domain",
+          body
+        );
+
+        console.log("Manual domain monitoring started:", res.data);
+        toast.success(
+          `Monitoring started for domain: ${manualEmails} (${frequency})`
+        );
+        setManualEmails("");
+      } catch (error) {
+        console.error("Error in manual mode:", error);
+        toast.error("Failed to start monitoring. Please try again.");
+      }
       return;
     }
 
-    // ✅ Upload mode (API call)
+    // ✅ Upload mode (file upload)
     if (!file) {
       toast.error("Please upload a file before submitting!");
       return;
@@ -267,35 +296,41 @@ const EmailMonitoringForm = () => {
         "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
       console.log("Email Monitoring Started:", res.data);
-      toast.success(
-        ` ${fileName} uploaded successfully! Frequency: ${frequency}`
-      );
+      toast.success(`${fileName} uploaded successfully! Frequency: ${frequency}`);
+      setFile(null);
+      setFileName("No file chosen");
     } catch (error) {
       console.error("Error uploading file:", error);
-      toast.error(" Failed to upload file. Please try again.");
+      toast.error("Failed to upload file. Please try again.");
     }
   };
 
+  const getButtonText = () => {
+    if (frequency === "Check Now") return "Check Now";
+    if (uploadMode === "manual") return "Start Monitoring";
+    return "Upload & Start Monitoring";
+  };
+
+
   return (
     <form onSubmit={handleSubmit} className="p-8 space-y-6">
+      {/* Header */}
       <div className="space-y-1">
         <h4 className="text-lg font-medium text-gray-300 flex items-center space-x-2">
           <EmailIcon className="h-5 w-5 text-pink-500" />
-          <span>Monitor Email Addresses</span>
+          <span>Monitor Email or Domain</span>
         </h4>
         <p className="text-sm text-gray-400">
-          Upload or enter a list of employee email addresses to monitor for data
-          breaches
+          You can upload employee email list or manually add a domain to monitor data breaches.
         </p>
       </div>
 
+      {/* Frequency */}
       <div>
         <h4 className="text-lg font-medium text-gray-300 mb-4 flex items-center space-x-2">
           <RefreshIcon className="h-5 w-5 text-pink-500" />
@@ -304,7 +339,7 @@ const EmailMonitoringForm = () => {
         <MonitoringFrequency selected={frequency} setSelected={setFrequency} />
       </div>
 
-      {/* --- Option Buttons --- */}
+      {/* Option Buttons */}
       <div className="flex space-x-4 mt-4">
         <button
           type="button"
@@ -330,17 +365,17 @@ const EmailMonitoringForm = () => {
         </button>
       </div>
 
-      {/* --- Conditional Inputs --- */}
+      {/* Conditional Inputs */}
       {uploadMode === "manual" ? (
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-300">
-            Enter Emails
+            Enter Domain or Email
           </label>
           <input
-            type="email"
+            type="text"
             value={manualEmails}
             onChange={(e) => setManualEmails(e.target.value)}
-            placeholder="example1@gmail.com"
+            placeholder="e.g. gmail.com or example@domain.com"
             className="w-full p-3 bg-gray-800 rounded-lg text-gray-200 border border-gray-700 focus:ring-2 focus:ring-pink-500 outline-none"
           />
         </div>
@@ -369,91 +404,30 @@ const EmailMonitoringForm = () => {
         </div>
       )}
 
+      {/* Submit Button */}
       <button
         type="submit"
         className="w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300
                    bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 flex items-center justify-center space-x-2"
       >
         <UploadIcon className="h-5 w-5" />
-        <span>
-          {uploadMode === "manual"
-            ? "Submit Emails"
-            : "Upload & Start Monitoring"}
-        </span>
+        <span>{getButtonText()}</span>
       </button>
     </form>
   );
 };
-
 // --- Main Application Component ---
 const Overview = () => {
   const [activeFormTab, setActiveFormTab] = useState("domain"); // domain or email
   const currentYear = new Date().getFullYear();
 
   // Data for the top status cards (Image 1)
-  const statsData = [
-    {
-      title: "Active Monitors",
-      value: "24",
-      description: "Domains & emails monitored",
-      color: "text-cyan-400",
-      icon: ({ className }) => (
-        <span
-          className={`h-2 w-2 rounded-full border-2 border-cyan-400 ${className}`}
-        ></span>
-      ), // Custom small circle icon
-    },
-    {
-      title: "Critical Alerts",
-      value: "3",
-      description: "Require immediate attention",
-      color: "text-red-400",
-      icon: ({ className }) => (
-        <span className={`h-4 w-4 text-red-400 ${className}`}>&Delta;</span>
-      ), // Custom alert icon (Delta)
-    },
-    {
-      title: "Resolved",
-      value: "127",
-      description: "Incidents handled this month",
-      color: "text-green-400",
-      icon: ({ className }) => (
-        <span
-          className={`h-2 w-2 rounded-full border-2 border-green-400 ${className}`}
-        ></span>
-      ), // Custom small circle icon
-    },
-    {
-      title: "Avg Response",
-      value: "2.4h",
-      description: "Time to incident resolution",
-      color: "text-pink-400",
-      icon: ({ className }) => (
-        <span
-          className={`h-2 w-2 rounded-full border-2 border-pink-400 ${className}`}
-        ></span>
-      ), // Custom small circle icon
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-[#0b203a] flex flex-col font-sans">
       {/* 2. Main Dashboard Content Area */}
       <main className="flex-grow flex flex-col items-center pt-10 pb-20 px-4">
         <div className="max-w-7xl w-full mx-auto">
           {/* 2.1. Status Cards (Image 852979.png - Top Section) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {statsData.map((data, index) => (
-              <StatsCard
-                key={index}
-                icon={data.icon}
-                title={data.title}
-                value={data.value}
-                description={data.description}
-                color={data.color}
-              />
-            ))}
-          </div>
 
           {/* 2.2. Monitoring Form Container (Images 852979.png and 8529b5.png - Bottom Section) */}
           <div className="bg-[#1e3a63] border border-blue-700/50 rounded-2xl shadow-2xl p-6">
