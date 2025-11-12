@@ -9,6 +9,7 @@ import { Route, Routes } from 'react-router-dom'
 import Settings from './Pages/Settings'
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import Dashboards from './Pages/Dashboad'
 
 
 const App = () => {
@@ -21,6 +22,7 @@ const App = () => {
         <Route path='/overview' element={<Overview/>}/>
         <Route path='/incidents' element={<Icients/>}/>
         <Route path='/settings' element={<Settings/>}/>
+        <Route path="/web-dashboard" element={<Dashboards/>}/>
       </Routes>
       <Footer/>
       <ToastContainer/>

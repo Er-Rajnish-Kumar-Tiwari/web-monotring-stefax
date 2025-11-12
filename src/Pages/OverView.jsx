@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // --- Inline SVG Icons (Reliable replacements for react-icons) ---
 
@@ -140,19 +140,38 @@ const MonitoringFrequency = ({ selected, setSelected }) => {
 // Component for the Domain Monitoring Tab
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const DomainMonitoringForm = () => {
   const [domainName, setDomainName] = useState("");
   const [frequency, setFrequency] = useState("Weekly");
+  const [checkNow, setCheckNow] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  // ✅ Automatically manage checkNow logic
+  useEffect(() => {
+    if (frequency === "Check Now") {
+      setCheckNow(true);
+    } else {
+      setCheckNow(false);
+    }
+  }, [frequency]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
+    const finalFrequency =
+      frequency === "Check Now" ? "daily" : frequency.toLowerCase();
 
     const payload = {
       domain: domainName,
-      frequency: frequency.toLowerCase(),
+      frequency: finalFrequency,
       notifyEmails: ["user@gmail.com"],
       createdBy: "690da6d42407423d605f0807",
+      checkNow: checkNow,
     };
 
     try {
@@ -160,20 +179,41 @@ const DomainMonitoringForm = () => {
         "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/domain",
         payload,
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         }
       );
 
-      console.log("Domain Monitoring Started:", response.data);
-      toast.success(` Monitoring started for ${domainName} (${frequency})`);
+      console.log("Response:", response.data);
+      const breaches = response?.data?.breaches || [];
+
+      if (checkNow) {
+        // ✅ For "Check Now" mode
+        if (breaches.length > 0) {
+          toast.success(
+            `${breaches.length} breach(es) found please check incidents page!`
+          );
+        } else {
+          toast.info("No breaches found for this domain.");
+        }
+      } else {
+        // ✅ Normal monitoring mode
+        toast.success(
+          `Monitoring started for ${domainName} (${finalFrequency})`
+        );
+      }
+
+      setDomainName("");
+      setFrequency("Weekly");
     } catch (error) {
       console.error("Error starting monitoring:", error);
-      toast.error(" Failed to start monitoring. Please try again.");
+      toast.error("Failed to start monitoring. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
-   const getButtonText = () => {
+
+  const getButtonText = () => {
+    if (loading) return "Checking now...";
     if (frequency === "Check Now") return "Check Now";
     return "Start Monitoring";
   };
@@ -186,9 +226,10 @@ const DomainMonitoringForm = () => {
           <span>Monitor Domain for Breaches</span>
         </h4>
         <p className="text-sm text-gray-400">
-          Enter your domain to monitor for dark web exposure and data breaches
+          Enter your domain to monitor for dark web exposure and data breaches.
         </p>
       </div>
+
       <div className="space-y-2">
         <label
           htmlFor="domain"
@@ -202,7 +243,7 @@ const DomainMonitoringForm = () => {
           value={domainName}
           onChange={(e) => setDomainName(e.target.value)}
           className="w-full px-4 py-3 bg-gray-950/30 border border-blue-700 rounded-lg text-white placeholder-gray-500 focus:ring-pink-500 focus:border-pink-500 transition-colors"
-          placeholder="Enter your domain to monitor for dark web exposure and data breaches"
+          placeholder="Enter your domain"
           required
         />
       </div>
@@ -217,9 +258,35 @@ const DomainMonitoringForm = () => {
 
       <button
         type="submit"
-        className="w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300
-                   bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 flex items-center justify-center space-x-2"
+        disabled={loading}
+        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
+          loading
+            ? "bg-gray-700 cursor-not-allowed"
+            : "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500"
+        }`}
       >
+        {loading && (
+          <svg
+            className="animate-spin h-5 w-5 mr-2 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        )}
         <span>{getButtonText()}</span>
       </button>
     </form>
@@ -232,6 +299,9 @@ const EmailMonitoringForm = () => {
   const [file, setFile] = useState(null);
   const [uploadMode, setUploadMode] = useState("upload");
   const [manualEmails, setManualEmails] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [checkNow, setCheckNow] = useState(false);
+  const navigate = useNavigate();
 
   // ✅ Handle file input
   const handleFileChange = (e) => {
@@ -244,78 +314,107 @@ const EmailMonitoringForm = () => {
     }
   };
 
+  // ✅ Handle checkNow condition automatically
+  useEffect(() => {
+    if (frequency === "Check Now") {
+      setCheckNow(true);
+    } else {
+      setCheckNow(false);
+    }
+  }, [frequency]);
+
   // ✅ Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (uploadMode === "manual") {
-      if (!manualEmails.trim()) {
-        toast.error("Please enter a domain or email before submitting!");
-        return;
-      }
+    const finalFrequency =
+      frequency === "Check Now" ? "daily" : frequency.toLowerCase();
 
-      try {
+    try {
+      if (uploadMode === "manual") {
+        if (!manualEmails.trim()) {
+          toast.error("Please enter a domain or email before submitting!");
+          setLoading(false);
+          return;
+        }
+
+        // ✅ Manual API call
         const body = {
-          domain: manualEmails.trim(), // 👈 Manual entry domain/email
-          frequency: frequency.toLowerCase(),
-          notifyEmails: ["user@gmail.com"],
+          targetType: "email",
+          targetValue: manualEmails.trim(),
+          frequency: finalFrequency,
+          notifyEmails: ["admin@example.com"],
           createdBy: "6911e77cf1fe8011a0dcc486",
+          checkNow: checkNow,
         };
 
         const res = await axios.post(
-          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/domain",
-          body
+          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch",
+          body,
+          { headers: { "Content-Type": "application/json" } }
         );
 
-        console.log("Manual domain monitoring started:", res.data);
-        toast.success(
-          `Monitoring started for domain: ${manualEmails} (${frequency})`
-        );
-        setManualEmails("");
-      } catch (error) {
-        console.error("Error in manual mode:", error);
-        toast.error("Failed to start monitoring. Please try again.");
-      }
-      return;
-    }
+        console.log("Manual email monitoring started:", res.data);
 
-    // ✅ Upload mode (file upload)
-    if (!file) {
-      toast.error("Please upload a file before submitting!");
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("frequency", frequency.toLowerCase());
-      formData.append("notifyEmails", "user@example.com");
-      formData.append("createdBy", "690da6d42407423d605f0807");
-
-      const res = await axios.post(
-        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
+        // ✅ Response handling
+        if (checkNow) {
+          const breaches = res?.data?.breaches || [];
+          if (breaches.length > 0) {
+            toast.success(`${breaches.length} breach(es) found please check incidients page!`);
+          } else {
+            toast.info("No breaches found for this email/domain.");
+          }
+        } else {
+          toast.success(
+            `Monitoring started for ${manualEmails} (${finalFrequency})`
+          );
         }
-      );
 
-      console.log("Email Monitoring Started:", res.data);
-      toast.success(`${fileName} uploaded successfully! Frequency: ${frequency}`);
-      setFile(null);
-      setFileName("No file chosen");
+        setManualEmails("");
+      } else {
+        // ✅ Upload mode
+        if (!file) {
+          toast.error("Please upload a file before submitting!");
+          setLoading(false);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("frequency", finalFrequency);
+        formData.append("notifyEmails", "admin@example.com");
+        formData.append("createdBy", "6911e77cf1fe8011a0dcc486");
+
+        const res = await axios.post(
+          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+
+        console.log("Email Monitoring Started:", res.data);
+
+        toast.success(
+          `${fileName} uploaded successfully! Frequency: ${finalFrequency}`
+        );
+
+        setFile(null);
+        setFileName("No file chosen");
+      }
     } catch (error) {
-      console.error("Error uploading file:", error);
-      toast.error("Failed to upload file. Please try again.");
+      console.error("Error:", error);
+      toast.error("Failed to start monitoring. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const getButtonText = () => {
+    if (loading) return "Checking now...";
     if (frequency === "Check Now") return "Check Now";
     if (uploadMode === "manual") return "Start Monitoring";
     return "Upload & Start Monitoring";
   };
-
 
   return (
     <form onSubmit={handleSubmit} className="p-8 space-y-6">
@@ -326,7 +425,8 @@ const EmailMonitoringForm = () => {
           <span>Monitor Email or Domain</span>
         </h4>
         <p className="text-sm text-gray-400">
-          You can upload employee email list or manually add a domain to monitor data breaches.
+          You can upload employee email list or manually add a domain to monitor
+          data breaches.
         </p>
       </div>
 
@@ -339,7 +439,7 @@ const EmailMonitoringForm = () => {
         <MonitoringFrequency selected={frequency} setSelected={setFrequency} />
       </div>
 
-      {/* Option Buttons */}
+      {/* Mode Selection */}
       <div className="flex space-x-4 mt-4">
         <button
           type="button"
@@ -407,15 +507,42 @@ const EmailMonitoringForm = () => {
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300
-                   bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 flex items-center justify-center space-x-2"
+        disabled={loading}
+        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
+          loading
+            ? "bg-gray-700 cursor-not-allowed"
+            : "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500"
+        }`}
       >
+        {loading && (
+          <svg
+            className="animate-spin h-5 w-5 mr-2 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        )}
         <UploadIcon className="h-5 w-5" />
         <span>{getButtonText()}</span>
       </button>
     </form>
   );
 };
+
 // --- Main Application Component ---
 const Overview = () => {
   const [activeFormTab, setActiveFormTab] = useState("domain"); // domain or email

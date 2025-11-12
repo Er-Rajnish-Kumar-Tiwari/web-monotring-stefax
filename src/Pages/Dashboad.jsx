@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   FaExclamationTriangle,
   FaCheckCircle,
@@ -6,8 +7,58 @@ import {
   FaChartLine,
   FaShieldAlt,
 } from "react-icons/fa";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
 
 const Dashboards = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const COLORS = ["#e91e63", "#ff9800", "#4caf50", "#2196f3"];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/dashboard?userId=6911e77cf1fe8011a0dcc486"
+        );
+        setData(res.data);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#052847] flex items-center justify-center text-white">
+        <p>Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-[#052847] flex items-center justify-center text-red-400">
+        Error loading data
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#052847] text-white p-6">
       {/* Top Stat Cards */}
@@ -18,8 +69,10 @@ const Dashboards = () => {
             <h2 className="text-sm font-semibold">Total Incidents</h2>
             <FaChartLine className="text-blue-400" />
           </div>
-          <p className="text-3xl font-bold">0</p>
-          <p className="text-green-400 text-sm mt-1">+12% from last month</p>
+          <p className="text-3xl font-bold">{data.totalIncidents}</p>
+          <p className="text-green-400 text-sm mt-1">
+            +{data.totalIncidentsChange}% from last month
+          </p>
         </div>
 
         {/* Open Incidents */}
@@ -28,8 +81,10 @@ const Dashboards = () => {
             <h2 className="text-sm font-semibold">Open Incidents</h2>
             <FaExclamationTriangle className="text-pink-500" />
           </div>
-          <p className="text-3xl font-bold">0</p>
-          <p className="text-green-400 text-sm mt-1">+5% from last month</p>
+          <p className="text-3xl font-bold">{data.openIncidents}</p>
+          <p className="text-green-400 text-sm mt-1">
+            +{data.openIncidentsChange}% from last month
+          </p>
         </div>
 
         {/* Resolved */}
@@ -38,8 +93,10 @@ const Dashboards = () => {
             <h2 className="text-sm font-semibold">Resolved</h2>
             <FaCheckCircle className="text-green-400" />
           </div>
-          <p className="text-3xl font-bold">0</p>
-          <p className="text-green-400 text-sm mt-1">+18% from last month</p>
+          <p className="text-3xl font-bold">{data.resolved}</p>
+          <p className="text-green-400 text-sm mt-1">
+            +{data.resolvedChange}% from last month
+          </p>
         </div>
 
         {/* Avg Resolution Time */}
@@ -48,7 +105,9 @@ const Dashboards = () => {
             <h2 className="text-sm font-semibold">Avg Resolution Time</h2>
             <FaClock className="text-purple-400" />
           </div>
-          <p className="text-3xl font-bold">N/A</p>
+          <p className="text-3xl font-bold">
+            {data.avgResolutionTime ? data.avgResolutionTime : "N/A"}
+          </p>
           <p className="text-red-400 text-sm mt-1">-2d from last month</p>
         </div>
       </div>
@@ -60,9 +119,33 @@ const Dashboards = () => {
           <h2 className="text-lg font-semibold flex items-center gap-2 text-pink-400 mb-4">
             <FaShieldAlt /> Incidents by Severity
           </h2>
-          <div className="flex justify-center items-center h-48 text-gray-400">
-            No incidents data available
-          </div>
+          {data.incidentsBySeverity && data.incidentsBySeverity.length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={data.incidentsBySeverity}
+                  dataKey="count"
+                  nameKey="severity"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label={({ severity, percentage }) =>
+                    `${severity} ${percentage}%`
+                  }
+                >
+                  {data.incidentsBySeverity.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex justify-center items-center h-48 text-gray-400">
+              No incidents data available
+            </div>
+          )}
         </div>
 
         {/* Breach Types */}
@@ -70,22 +153,26 @@ const Dashboards = () => {
           <h2 className="text-lg font-semibold flex items-center gap-2 text-purple-400 mb-4">
             <FaChartLine /> Breach Types
           </h2>
-          <div className="flex justify-center items-center h-48 text-gray-400">
-            No breach type data available
-          </div>
+          {data.breachTypes && data.breachTypes.length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={data.breachTypes}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="type" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#e91e63" barSize={50} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex justify-center items-center h-48 text-gray-400">
+              No breach type data available
+            </div>
+          )}
         </div>
       </div>
 
       {/* Bottom Card */}
-      <div className="bg-[#06365e] p-8 rounded-xl text-center shadow-md">
-        <FaShieldAlt className="text-3xl text-gray-400 mx-auto mb-2" />
-        <h3 className="font-semibold text-lg text-gray-200 mb-1">
-          No incidents yet
-        </h3>
-        <p className="text-gray-400 text-sm">
-          Start monitoring domains and emails to see breach data here.
-        </p>
-      </div>
+     
     </div>
   );
 };

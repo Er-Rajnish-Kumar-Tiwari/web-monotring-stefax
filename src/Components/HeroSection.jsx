@@ -43,6 +43,12 @@ const HeroSection = () => {
         {/* 3. Navigation Tabs */}
         <nav className="bg-blue-900/30 p-1 rounded-xl shadow-2xl flex space-x-1 w-full max-w-md justify-between text-sm">
           <button 
+            className={tabStyles('web-dashboard')}
+            onClick={() => { setActiveTab('web-dashboard'); navigate('/web-dashboard'); }}
+          >
+            Dashboard
+          </button>
+          <button 
             className={tabStyles('overview')}
             onClick={() => { setActiveTab('overview'); navigate('/overview'); }}
           >
