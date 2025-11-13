@@ -98,7 +98,7 @@ const DetailsModal = ({ group, onClose }) => {
             >
               <div className="flex justify-between items-center">
                 <h4 className="font-semibold text-blue-300">
-                  Incident #{index + 1}
+                  {incident.breachData?.Name}
                 </h4>
                 <div className="flex items-center space-x-2">
                 <SeverityBadge severity={incident.severity || "HIGH"} />
