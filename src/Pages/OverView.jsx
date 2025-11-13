@@ -170,7 +170,7 @@ const DomainMonitoringForm = () => {
       domain: domainName,
       frequency: finalFrequency,
       notifyEmails: ["user@gmail.com"],
-      createdBy: "690da6d42407423d605f0807",
+      createdBy: "6911e77cf1fe8011a0dcc486",
       checkNow: checkNow,
     };
 
@@ -187,19 +187,32 @@ const DomainMonitoringForm = () => {
       const breaches = response?.data?.breaches || [];
 
       if (checkNow) {
-        // ✅ For "Check Now" mode
+        // for "Check Now" mode
         if (breaches.length > 0) {
           toast.success(
-            `${breaches.length} breach(es) found please check incidents page!`
+            `${breaches.length} breach(es) found! Please check the incidents page.`
           );
         } else {
           toast.info("No breaches found for this domain.");
         }
       } else {
-        // ✅ Normal monitoring mode
-        toast.success(
-          `Monitoring started for ${domainName} (${finalFrequency})`
-        );
+        // Normal monitoring mode with custom messages
+        const frequencyMessages = {
+          daily:
+            "Daily domain monitoring enabled. We’ll scan your domain every day at 9:00 AM IST and immediately notify you if we find any new dark-web exposure or suspicious activity.",
+          weekly:
+            "Weekly domain monitoring activated. We’ll scan your domain every Monday at 9:00 AM IST and alert you if we detect any suspicious activity.",
+          "bi-weekly":
+            "Bi-weekly domain monitoring enabled. We’ll run a domain scan every 14 days at 9:00 AM IST and notify you immediately if any breach indicators appear.",
+          monthly:
+            "Monthly domain monitoring selected. We’ll scan your domain on the 1st of every month at 9:00 AM IST and inform you of any potential exposure.",
+        };
+
+        const message =
+          frequencyMessages[finalFrequency] ||
+          ` Monitoring started for ${domainName} (${finalFrequency}).`;
+
+        toast.success(message, { autoClose: 4000 });
       }
 
       setDomainName("");
@@ -359,16 +372,33 @@ const EmailMonitoringForm = () => {
 
         // ✅ Response handling
         if (checkNow) {
+          // ✅ Instant check mode
           const breaches = res?.data?.breaches || [];
           if (breaches.length > 0) {
-            toast.success(`${breaches.length} breach(es) found please check incidients page!`);
+            toast.success(
+              `${breaches.length} breach(es) found! Please check the incidents page.`
+            );
           } else {
             toast.info("No breaches found for this email/domain.");
           }
         } else {
-          toast.success(
-            `Monitoring started for ${manualEmails} (${finalFrequency})`
-          );
+          // ✅ Frequency-based success messages
+          const frequencyMessages = {
+            daily:
+              "Daily email monitoring enabled. We’ll scan this email address every day at 9:00 AM IST and immediately notify you if it appears in any dark-web dumps or suspicious activity is found.",
+            weekly:
+              "Weekly email monitoring activated. We’ll scan this email address every Monday at 9:00 AM IST and alert you if we detect any suspicious exposure.",
+            "bi-weekly":
+              "Bi-weekly email monitoring enabled. We’ll scan this email every 14 days at 9:00 AM IST and notify you immediately if it’s found in any breach or leak.",
+            monthly:
+              "Monthly email monitoring selected. We’ll scan this email on the 1st of every month at 9:00 AM IST and notify you of any potential exposure.",
+          };
+
+          const message =
+            frequencyMessages[finalFrequency] ||
+            `Monitoring started for ${manualEmails} (${finalFrequency}).`;
+
+          toast.success(message);
         }
 
         setManualEmails("");
@@ -394,9 +424,18 @@ const EmailMonitoringForm = () => {
 
         console.log("Email Monitoring Started:", res.data);
 
-        toast.success(
-          `${fileName} uploaded successfully! Frequency: ${finalFrequency}`
-        );
+        const frequencyMessages = {
+          daily: `Daily email list monitoring enabled for ${fileName}. We’ll scan all uploaded emails every day at 9:00 AM IST and immediately notify you if any appear in dark-web leaks.`,
+          weekly: `Weekly email list monitoring activated for ${fileName}. We’ll scan all uploaded emails every Monday at 9:00 AM IST and alert you if we detect any suspicious exposure.`,
+          "bi-weekly": `Bi-weekly email list monitoring enabled for ${fileName}. We’ll scan your uploaded list every 14 days at 9:00 AM IST and notify you if any addresses are found in breaches.`,
+          monthly: `Monthly email list monitoring selected for ${fileName}. We’ll scan your uploaded list on the 1st of every month at 9:00 AM IST and inform you of any potential exposure.`,
+        };
+
+        const message =
+          frequencyMessages[finalFrequency] ||
+          ` ${fileName} uploaded successfully! Monitoring started (${finalFrequency}).`;
+
+        toast.success(message, { autoClose: 8000 });
 
         setFile(null);
         setFileName("No file chosen");

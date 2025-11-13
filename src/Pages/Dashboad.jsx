@@ -62,7 +62,7 @@ const Dashboards = () => {
   return (
     <div className="min-h-screen bg-[#052847] text-white p-6">
       {/* Top Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {/* Total Incidents */}
         <div className="bg-[#06365e] p-5 rounded-xl shadow-md">
           <div className="flex justify-between items-center mb-2">
@@ -99,17 +99,7 @@ const Dashboards = () => {
           </p>
         </div>
 
-        {/* Avg Resolution Time */}
-        <div className="bg-[#06365e] p-5 rounded-xl shadow-md">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-sm font-semibold">Avg Resolution Time</h2>
-            <FaClock className="text-purple-400" />
-          </div>
-          <p className="text-3xl font-bold">
-            {data.avgResolutionTime ? data.avgResolutionTime : "N/A"}
-          </p>
-          <p className="text-red-400 text-sm mt-1">-2d from last month</p>
-        </div>
+        
       </div>
 
       {/* Charts Section */}
