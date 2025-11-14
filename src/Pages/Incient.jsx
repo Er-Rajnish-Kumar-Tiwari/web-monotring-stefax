@@ -360,7 +360,9 @@ const IncidentManagement = () => {
                           View Details
                         </button>
 
-                        {group.incidentStatus === "open" && (
+                        {group.incidents.some(
+                          (i) => i.incidentStatus === "open"
+                        ) && (
                           <button
                             onClick={() => handleResolve(group)}
                             className="bg-gray-800 hover:bg-purple-800 px-3 py-1 rounded-md text-sm"

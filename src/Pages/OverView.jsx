@@ -163,6 +163,12 @@ const DomainMonitoringForm = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (!frequency) {
+    toast.error("Please select a monitoring frequency!");
+    setLoading(false);
+    return;
+  }
+
     const finalFrequency =
       frequency === "Check Now" ? "daily" : frequency.toLowerCase();
 
@@ -232,7 +238,7 @@ const DomainMonitoringForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-8 space-y-6">
+    <form onSubmit={handleSubmit} className="p-8 space-y-6" noValidate>
       <div className="space-y-1">
         <h4 className="text-lg font-medium text-gray-300 flex items-center space-x-2">
           <DiamondIcon className="h-5 w-5 text-pink-500" />
@@ -340,6 +346,12 @@ const EmailMonitoringForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if(!frequency) {
+      toast.error("Please select a monitoring frequency!");
+      setLoading(false);
+      return;
+    }
 
     const finalFrequency =
       frequency === "Check Now" ? "daily" : frequency.toLowerCase();
@@ -455,6 +467,35 @@ const EmailMonitoringForm = () => {
     return "Upload & Start Monitoring";
   };
 
+  // --- Download Template File ---
+const handleTemplateDownload = async () => {
+  try {
+    const res = await axios.get(
+      "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/template",
+      {
+        responseType: "blob", // IMPORTANT
+      }
+    );
+
+    // Excel blob ko URL me convert karo
+    const fileURL = window.URL.createObjectURL(new Blob([res.data]));
+
+    // Download trigger
+    const link = document.createElement("a");
+    link.href = fileURL;
+    link.setAttribute("download", "email_template.xlsx");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    toast.success("Template downloaded successfully!");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to download template!");
+  }
+};
+
+
   return (
     <form onSubmit={handleSubmit} className="p-8 space-y-6">
       {/* Header */}
@@ -535,11 +576,13 @@ const EmailMonitoringForm = () => {
                 Choose File
               </span>
             </label>
+          <button className="px-4 py-2 bg-pink-600 text-white rounded-lg shadow-md hover:bg-pink-500 transition-colors" type="button" onClick={handleTemplateDownload}>Download Template</button>
             <span className="text-gray-400 truncate">{fileName}</span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
             Supported formats: CSV, XLSX, XLS, TXT (one email per line)
           </p>
+
         </div>
       )}
 
