@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+const userId="6911e77cf1fe8011a0dcc486";
 
 // --- SVG Icon ---
 const DomainIcon = (props) => (
@@ -53,34 +54,18 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// --- Details Modal (All merged incidents) ---
+// --- Details Modal ---
 const DetailsModal = ({ group, onClose }) => {
   if (!group) return null;
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-[#0f2747] text-gray-100 w-full max-w-3xl rounded-2xl shadow-2xl border border-blue-800/40 overflow-hidden">
-        {/* Header */}
         <div className="flex items-start justify-between p-6 border-b border-blue-800/40">
-          <div>
-            <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-              <svg
-                className="w-5 h-5 text-pink-500"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
-                />
-              </svg>
-              Incident Group:{" "}
-              <span className="text-blue-300">{group.targetValue}</span>
-            </h3>
-          </div>
+          <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+            Incident ID:{" "}
+            <span className="text-blue-300">{group.incidentId}</span>
+          </h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-pink-500 transition text-xl"
@@ -89,7 +74,6 @@ const DetailsModal = ({ group, onClose }) => {
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6 space-y-6 overflow-y-auto max-h-[80vh]">
           {group.incidents.map((incident, index) => (
             <div
@@ -101,16 +85,19 @@ const DetailsModal = ({ group, onClose }) => {
                   {incident.breachData?.Name}
                 </h4>
                 <div className="flex items-center space-x-2">
-                <SeverityBadge severity={incident.severity || "HIGH"} />
-                <StatusBadge
-                  status={incident.status ? "OPEN" : "RESOLVED"}
-                />
+                  <SeverityBadge severity={incident.severity || "HIGH"} />
+                  <StatusBadge
+                    status={incident.status ? "OPEN" : "RESOLVED"}
+                  />
                 </div>
               </div>
 
               <div className="text-sm text-gray-300">
                 <p>
-                  <strong>Incident ID:</strong> {incident.incidentId}
+                  <strong>Target:</strong> {incident.targetValue}
+                </p>
+                <p>
+                  <strong>Type:</strong> {incident.targetType}
                 </p>
                 <p>
                   <strong>Detected:</strong>{" "}
@@ -147,7 +134,6 @@ const DetailsModal = ({ group, onClose }) => {
           ))}
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 border-t border-blue-800/40 text-right">
           <button
             onClick={onClose}
@@ -161,7 +147,7 @@ const DetailsModal = ({ group, onClose }) => {
   );
 };
 
-// --- Main Component ---
+// --- MAIN COMPONENT ---
 const IncidentManagement = () => {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -172,22 +158,28 @@ const IncidentManagement = () => {
     const fetchIncidents = async () => {
       try {
         const res = await axios.get(
-          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/incidents?userId=6911e77cf1fe8011a0dcc486"
+          `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/incidents?userId=${userId}`
         );
+
         if (res.data.success) {
-          // --- Group by domain/email ---
+          // --- GROUP BY incidentId (NEW) ---
           const grouped = Object.values(
             res.data.data.reduce((acc, inc) => {
-              const key = inc.targetValue;
-              if (!acc[key]) acc[key] = { targetValue: key, incidents: [] };
-              acc[key].incidents.push(inc); // include duplicates here
+              const key = inc.incidentId; // ONLY incidentId
+              if (!acc[key])
+                acc[key] = {
+                  incidentId: key,
+                  incidents: [],
+                };
+              acc[key].incidents.push(inc);
               return acc;
             }, {})
           );
+
           setIncidents(grouped);
         }
       } catch (err) {
-        console.error("Error fetching incidents:", err);
+        console.error("Error:", err);
       } finally {
         setLoading(false);
       }
@@ -195,10 +187,11 @@ const IncidentManagement = () => {
     fetchIncidents();
   }, []);
 
-  const handleResolve = (targetValue) => {
+  // Resolve handler
+  const handleResolve = (incidentId) => {
     setIncidents((prev) =>
       prev.map((group) =>
-        group.targetValue === targetValue
+        group.incidentId === incidentId
           ? {
               ...group,
               incidents: group.incidents.map((inc) => ({
@@ -211,12 +204,13 @@ const IncidentManagement = () => {
     );
   };
 
+  // Tab filter logic
   const filteredGroups = incidents.filter((group) => {
     if (filter === "All") return true;
     if (filter === "Open")
-      return group.incidents.some((i) => i.status === true);
+      return group.incidents.some((x) => x.status === true);
     if (filter === "Resolved")
-      return group.incidents.every((i) => i.status === false);
+      return group.incidents.every((x) => x.status === false);
     return true;
   });
 
@@ -228,6 +222,7 @@ const IncidentManagement = () => {
           <h2 className="text-2xl font-bold">
             <span className="text-pink-600 mr-3">⚠ </span>Incident Management
           </h2>
+
           <div className="flex space-x-3">
             {["All", "Open", "Resolved"].map((tab) => (
               <button
@@ -235,25 +230,27 @@ const IncidentManagement = () => {
                 onClick={() => setFilter(tab)}
                 className={`px-4 py-1 rounded-lg font-medium text-sm ${
                   filter === tab
-                    ? "bg-pink-600 text-white"
-                    : "bg-blue-900 text-gray-300 hover:bg-purple-800"
+                    ? "bg-pink-600"
+                    : "bg-blue-900 hover:bg-purple-800"
                 }`}
               >
                 {tab} (
-                {tab === "All"
-                  ? incidents.length
-                  : incidents.filter((group) =>
-                      tab === "Open"
-                        ? group.incidents.some((i) => i.status)
-                        : group.incidents.every((i) => !i.status)
-                    ).length}
+                {
+                  incidents.filter((g) =>
+                    tab === "All"
+                      ? true
+                      : tab === "Open"
+                      ? g.incidents.some((i) => i.status)
+                      : g.incidents.every((i) => !i.status)
+                  ).length
+                }
                 )
               </button>
             ))}
           </div>
         </div>
 
-        {/* Loading / Empty / Table */}
+        {/* Table */}
         {loading ? (
           <div className="text-gray-400 text-center py-10">
             Loading incidents...
@@ -279,14 +276,20 @@ const IncidentManagement = () => {
               </thead>
               <tbody>
                 {filteredGroups.map((group) => {
-                  const allIds = [
-                    ...new Set(group.incidents.map((i) => i.incidentId)),
+                  const allTargets = [
+                    ...new Set(group.incidents.map((i) => i.targetValue)),
                   ].join(", ");
+
+                  const allTypes = [
+                    ...new Set(group.incidents.map((i) => i.targetType)),
+                  ].join(", ");
+
                   const allSources = [
                     ...new Set(
                       group.incidents.map((i) => i.breachData?.Name || "Unknown")
                     ),
                   ].join(", ");
+
                   const allDetected = [
                     ...new Set(
                       group.incidents.map((i) =>
@@ -294,41 +297,46 @@ const IncidentManagement = () => {
                       )
                     ),
                   ].join(", ");
+
                   const anyOpen = group.incidents.some((i) => i.status);
 
                   return (
                     <tr
-                      key={group.targetValue}
+                      key={group.incidentId}
                       className="border-t border-blue-800 hover:bg-blue-900/20 transition-all"
                     >
-                      <td className="px-6 py-4">{allIds}</td>
-                      <td className="px-6 py-4">
-                        {group.incidents[0].targetType}
-                      </td>
-                      <td className="px-6 py-4 flex items-center mt-5 gap-2 font-semibold text-white">
+                      <td className="px-6 py-4">{group.incidentId}</td>
+                      <td className="px-6 py-4">{allTypes}</td>
+
+                      <td className="px-6 py-4 flex mt-5 items-center gap-2 font-semibold text-white">
                         <DomainIcon className="h-4 w-4 text-pink-400" />{" "}
-                        {group.targetValue}
+                        {allTargets}
                       </td>
+
                       <td className="px-6 py-4">{allSources}</td>
                       <td className="px-6 py-4">{allDetected}</td>
+
                       <td className="px-6 py-4">
                         <StatusBadge
                           status={anyOpen ? "OPEN" : "RESOLVED"}
                         />
                       </td>
+
                       <td className="px-6 py-4">
                         <SeverityBadge severity="HIGH" />
                       </td>
+
                       <td className="px-6 py-4 space-x-2">
                         <button
                           onClick={() => setSelectedGroup(group)}
-                          className="bg-gray-800 hover:bg-purple-800 px-3 py-1 rounded-md text-sm mb-4"
+                          className="bg-gray-800 hover:bg-purple-800 px-3 py-1 rounded-md text-sm mb-3"
                         >
                           View Details
                         </button>
+
                         {anyOpen && (
                           <button
-                            onClick={() => handleResolve(group.targetValue)}
+                            onClick={() => handleResolve(group.incidentId)}
                             className="bg-gray-800 hover:bg-purple-800 px-3 py-1 rounded-md text-sm"
                           >
                             Resolve All
@@ -344,7 +352,6 @@ const IncidentManagement = () => {
         )}
       </div>
 
-      {/* Popup Modal */}
       {selectedGroup && (
         <DetailsModal
           group={selectedGroup}
