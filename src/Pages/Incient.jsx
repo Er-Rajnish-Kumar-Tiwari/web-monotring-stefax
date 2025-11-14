@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-const userId="6911e77cf1fe8011a0dcc486";
+const userId = "6911e77cf1fe8011a0dcc486";
 
 // --- SVG Icon ---
 const DomainIcon = (props) => (
@@ -86,9 +86,7 @@ const DetailsModal = ({ group, onClose }) => {
                 </h4>
                 <div className="flex items-center space-x-2">
                   <SeverityBadge severity={incident.severity || "HIGH"} />
-                  <StatusBadge
-                    status={incident.status ? "OPEN" : "RESOLVED"}
-                  />
+                  <StatusBadge status={incident.status ? "OPEN" : "RESOLVED"} />
                 </div>
               </div>
 
@@ -188,31 +186,55 @@ const IncidentManagement = () => {
   }, []);
 
   // Resolve handler
-  const handleResolve = (incidentId) => {
-    setIncidents((prev) =>
-      prev.map((group) =>
-        group.incidentId === incidentId
-          ? {
-              ...group,
-              incidents: group.incidents.map((inc) => ({
-                ...inc,
-                status: false,
-              })),
-            }
-          : group
-      )
-    );
+  // Resolve handler USING API CALL
+  const handleResolve = async (group) => {
+    try {
+      // group ke pehle incident ka targetValue + targetType lenge
+      const { targetValue, targetType } = group.incidents[0];
+
+      const payload = {
+        targetValue,
+        targetType,
+      };
+
+      await axios.post(
+        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/incidents/resolve-by-target",
+        payload
+      );
+
+      // UI update after API success
+      setIncidents((prev) =>
+        prev.map((g) =>
+          g.incidentId === group.incidentId
+            ? {
+                ...g,
+                incidents: g.incidents.map((inc) => ({
+                  ...inc,
+                  incidentStatus: "resolved",
+                })),
+              }
+            : g
+        )
+      );
+    } catch (error) {
+      console.error("Resolve API Error:", error);
+    }
   };
 
   // Tab filter logic
   const filteredGroups = incidents.filter((group) => {
     if (filter === "All") return true;
     if (filter === "Open")
-      return group.incidents.some((x) => x.status === true);
+      return group.incidents.some((x) => x.incidentStatus === "open");
     if (filter === "Resolved")
-      return group.incidents.every((x) => x.status === false);
+      return group.incidents.every((x) => x.incidentStatus === "resolved");
     return true;
   });
+
+  const capitalizeFirst = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
 
   return (
     <div className="min-h-screen bg-[#0b203a] text-white px-6 py-10 font-sans">
@@ -240,8 +262,10 @@ const IncidentManagement = () => {
                     tab === "All"
                       ? true
                       : tab === "Open"
-                      ? g.incidents.some((i) => i.status)
-                      : g.incidents.every((i) => !i.status)
+                      ? g.incidents.some((i) => i.incidentStatus === "open")
+                      : g.incidents.every(
+                          (i) => i.incidentStatus === "resolved"
+                        )
                   ).length
                 }
                 )
@@ -286,7 +310,9 @@ const IncidentManagement = () => {
 
                   const allSources = [
                     ...new Set(
-                      group.incidents.map((i) => i.breachData?.Name || "Unknown")
+                      group.incidents.map(
+                        (i) => i.breachData?.Name || "Unknown"
+                      )
                     ),
                   ].join(", ");
 
@@ -306,11 +332,11 @@ const IncidentManagement = () => {
                       className="border-t border-blue-800 hover:bg-blue-900/20 transition-all"
                     >
                       <td className="px-6 py-4">{group.incidentId}</td>
-                      <td className="px-6 py-4">{allTypes}</td>
+                      <td className="px-6 py-4">{capitalizeFirst(allTypes)}</td>
 
                       <td className="px-6 py-4 flex mt-5 items-center gap-2 font-semibold text-white">
                         <DomainIcon className="h-4 w-4 text-pink-400" />{" "}
-                        {allTargets}
+                        {capitalizeFirst(allTargets)}
                       </td>
 
                       <td className="px-6 py-4">{allSources}</td>
@@ -318,7 +344,7 @@ const IncidentManagement = () => {
 
                       <td className="px-6 py-4">
                         <StatusBadge
-                          status={anyOpen ? "OPEN" : "RESOLVED"}
+                          status={group.incidents[0].incidentStatus.toUpperCase()}
                         />
                       </td>
 
@@ -334,9 +360,9 @@ const IncidentManagement = () => {
                           View Details
                         </button>
 
-                        {anyOpen && (
+                        {group.incidentStatus === "open" && (
                           <button
-                            onClick={() => handleResolve(group.incidentId)}
+                            onClick={() => handleResolve(group)}
                             className="bg-gray-800 hover:bg-purple-800 px-3 py-1 rounded-md text-sm"
                           >
                             Resolve All

@@ -144,7 +144,7 @@ import { useNavigate } from "react-router-dom";
 
 const DomainMonitoringForm = () => {
   const [domainName, setDomainName] = useState("");
-  const [frequency, setFrequency] = useState("Weekly");
+  const [frequency, setFrequency] = useState("");
   const [checkNow, setCheckNow] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -216,7 +216,7 @@ const DomainMonitoringForm = () => {
       }
 
       setDomainName("");
-      setFrequency("Weekly");
+      setFrequency("");
     } catch (error) {
       console.error("Error starting monitoring:", error);
       toast.error("Failed to start monitoring. Please try again.");
@@ -307,7 +307,7 @@ const DomainMonitoringForm = () => {
 };
 
 const EmailMonitoringForm = () => {
-  const [frequency, setFrequency] = useState("Weekly");
+  const [frequency, setFrequency] = useState("");
   const [fileName, setFileName] = useState("No file chosen");
   const [file, setFile] = useState(null);
   const [uploadMode, setUploadMode] = useState("upload");
