@@ -86,7 +86,7 @@ const DetailsModal = ({ group, onClose }) => {
                 </h4>
                 <div className="flex items-center space-x-2">
                   <SeverityBadge severity={incident.severity || "HIGH"} />
-                  <StatusBadge status={incident.status ? "OPEN" : "RESOLVED"} />
+                  <StatusBadge status={incident.incidentStatus} />
                 </div>
               </div>
 
