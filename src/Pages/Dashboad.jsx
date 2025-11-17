@@ -20,6 +20,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+  const webUserId=localStorage.getItem("webMonitoringuserId");
 
 const Dashboards = () => {
   const [data, setData] = useState(null);

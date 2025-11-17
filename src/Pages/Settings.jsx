@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   FiGlobe,
   FiMail,
@@ -7,20 +8,352 @@ import {
   FiDatabase,
   FiMessageSquare,
   FiShoppingBag,
+  FiPlus,
+  FiX,
 } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 export default function Settings() {
+  const [fullName, setFullName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [country, setCountry] = useState("");
+  const [contactNo, setContactNo] = useState("");
+
+  const fetchUserProfile = async () => {
+    const API =
+      "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/profile/691a95de0040f69ce13b7c4e";
+
+    const authToken = localStorage.getItem("webMonitoringToken");
+
+    try {
+      const res = await axios.get(API, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      console.log(res);
+
+      setFullName(res.data.fullName);
+      setCompanyName(res.data.companyName);
+      setCountry(res.data.country);
+      setContactNo(res.data.contactno);
+
+      return res.data;
+    } catch (err) {
+      const apiError =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Something went wrong";
+
+      toast.error(apiError);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  // STATES
+  const [orgEmail, setOrgEmail] = useState("");
+  const [orgEmails, setOrgEmails] = useState([]);
+
+  const [notifyEmail, setNotifyEmail] = useState("");
+  const [notifyEmails, setNotifyEmails] = useState([]);
+
+  const userId = "691a95de0040f69ce13b7c4e";
+  const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${userId}`;
+
+  //  Yeh token apne login API se receive hota hai
+  const authToken = localStorage.getItem("webMonitoringToken");
+
+  // =================== 1️⃣ ORG EMAIL API CALL ===================
+  const handleAddOrgEmail = async () => {
+    if (!orgEmail.trim()) return;
+
+    const updated = [...orgEmails, orgEmail];
+    setOrgEmails(updated);
+    setOrgEmail("");
+
+    const body = {
+      fullName: fullName,
+      companyName: companyName,
+      country: country,
+      contactno: contactNo,
+      notificationEmails: notifyEmails.length
+        ? notifyEmails
+        : ["user@gmail.com"],
+      isActive: true,
+    };
+
+    try {
+      const res = await axios.put(API, body, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      toast.success(res.data?.message || "Organization Email Updated!");
+    } catch (err) {
+      const apiError =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Something went wrong";
+
+      toast.error(apiError);
+    }
+  };
+
+  // =================== 2️⃣ NOTIFICATION EMAIL API CALL ===================
+  const handleAddNotifyEmail = async () => {
+    if (!notifyEmail.trim()) return;
+
+    const updatedList = [...notifyEmails, notifyEmail];
+    setNotifyEmails(updatedList);
+    setNotifyEmail("");
+
+    const body = {
+      fullName: fullName,
+      companyName: companyName,
+      country: country,
+      contactno: contactNo,
+      notificationEmails: updatedList,
+      isActive: true,
+    };
+
+    try {
+      const res = await axios.put(API, body, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      toast.success(res.data?.message || "Notify Email Updated!");
+    } catch (err) {
+      const apiError =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Something went wrong";
+
+      toast.error(apiError);
+    }
+  };
+
+  const handleDeleteOrgEmail = (index) => {
+    const updated = orgEmails.filter((_, i) => i !== index);
+    setOrgEmails(updated);
+  };
+
+  const handleDeleteNotifyEmail = (index) => {
+    const updated = notifyEmails.filter((_, i) => i !== index);
+    setNotifyEmails(updated);
+  };
+
   return (
     <div className="min-h-screen bg-[#0b203a] text-white p-8">
       <div className="max-w-5xl mx-auto space-y-8">
-
         {/* --- Title --- */}
         <div>
-          <h1 className="text-2xl font-bold mb- flex gap-2 items-center"> <FiBell className="text-pink-400"/> Dark Web Monitoring Settings</h1>
+          <h1 className="text-2xl font-bold mb- flex gap-2 items-center">
+            <FiBell className="text-pink-400" /> Dark Web Monitoring Settings
+          </h1>
           <p className="text-gray-400">
             Configure your monitoring preferences and alerts
           </p>
         </div>
+
+        {/* ======================================================= */}
+        {/* 1️⃣ ORGANIZATION ACCESS SECTION  (API CONNECTED) */}
+        {/* ======================================================= */}
+        {/* ======================================================= */}
+        {/* 1️⃣ ORGANIZATION ACCESS SECTION — UPDATED UI LIKE SCREENSHOT */}
+        {/* ======================================================= */}
+
+        <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md border border-[#1d355d]">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <FiShield className="text-pink-400" /> Grant User Access
+          </h2>
+
+          <p className="text-gray-400 text-sm mb-6">
+            Add team members who should receive access to the product
+          </p>
+
+          {/* INPUTS */}
+          <div className="space-y-4">
+            {/* Email */}
+            <div>
+              <label className="text-sm text-gray-300">Email Address</label>
+              <input
+                type="email"
+                placeholder="user@example.com"
+                value={orgEmail}
+                onChange={(e) => setOrgEmail(e.target.value)}
+                className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
+              />
+            </div>
+
+            {/* Full Name */}
+            <div>
+              <label className="text-sm text-gray-300">Full Name</label>
+              <input
+                type="text"
+                placeholder="John Doe"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
+              />
+            </div>
+
+            {/* Department */}
+            <div>
+              <label className="text-sm text-gray-300">
+                Department (Optional)
+              </label>
+              <input
+                type="text"
+                placeholder="Security, IT, etc."
+                className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
+              />
+            </div>
+
+            {/* Add button */}
+            <button
+              onClick={handleAddOrgEmail}
+              className="bg-pink-600 hover:bg-pink-700 w-fit px-6 py-2.5 rounded-xl flex items-center gap-2"
+            >
+              <FiPlus /> Add
+            </button>
+          </div>
+
+          {/* Divider */}
+          <hr className="border-[#1e3a63] my-6" />
+
+          {/* USERS LIST */}
+          <h3 className="text-gray-200 font-medium mb-2">
+            Users with Access ({orgEmails.length})
+          </h3>
+
+          <div className="space-y-3">
+            {orgEmails.map((item, index) => (
+              <div
+                key={index}
+                className="bg-[#1e3a63] p-4 rounded-xl flex items-center justify-between"
+              >
+                {/* Left — Avatar + User Info */}
+                <div className="flex items-center gap-4">
+                  <div className="bg-pink-600 w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                    {item.charAt(0).toUpperCase()}
+                  </div>
+
+                  <div>
+                    <p className="text-white font-medium">
+                      {item.split("@")[0]}
+                    </p>
+                    <p className="text-gray-300 text-sm">{item}</p>
+                    <p className="text-gray-500 text-xs">
+                      Added {new Date().toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Delete */}
+                <button
+                  onClick={() => handleDeleteOrgEmail(index)}
+                  className="text-red-400 hover:text-red-500"
+                >
+                  <FiX size={20} />
+                </button>
+              </div>
+            ))}
+
+            {orgEmails.length === 0 && (
+              <p className="text-gray-400 text-sm">No users added yet.</p>
+            )}
+          </div>
+
+          {/* INFO BOX — Same UI Like Screenshot */}
+          <div className="mt-6 bg-[#0c2650] border border-[#2f5fa5] rounded-2xl p-6 text-gray-300">
+            <div className="flex items-center gap-2 mb-3">
+              <FiMail className="text-pink-400" size={20} />
+              <h3 className="text-white font-semibold">
+                What happens when you add a user?
+              </h3>
+            </div>
+
+            <ul className="text-sm space-y-1">
+              <li>
+                • They receive an email with login credentials and access
+                instructions
+              </li>
+              <li>• Access is granted immediately</li>
+              <li>
+                • They can log in and start using the Dark Web Monitoring
+                product
+              </li>
+              <li>
+                • You can revoke access anytime by removing them from the list
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <FiMail className="text-pink-400" /> Breach Notification Emails
+          </h2>
+
+          <p className="text-gray-400 text-sm mb-4">
+            Add email addresses where you want to receive breach notifications
+          </p>
+
+          <div className="flex gap-3 items-center">
+            <input
+              type="email"
+              placeholder="notification@example.com"
+              value={notifyEmail}
+              onChange={(e) => setNotifyEmail(e.target.value)}
+              className="w-full bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-2 rounded-xl outline-none"
+            />
+
+            <button
+              onClick={handleAddNotifyEmail}
+              className="bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-xl flex items-center gap-2"
+            >
+              <FiPlus /> Add
+            </button>
+          </div>
+
+          <div className="mt-3 text-gray-400 text-sm">
+            {notifyEmails.length === 0 ? (
+              <p>No notification emails added yet.</p>
+            ) : (
+              <ul className="mt-2 space-y-2">
+                {notifyEmails.map((item, index) => (
+                  <li
+                    key={index}
+                    className="bg-[#1e3a63] px-3 py-2 rounded-lg text-white text-sm flex justify-between items-center"
+                  >
+                    {item}
+                    <button
+                      onClick={() => handleDeleteNotifyEmail(index)}
+                      className="text-red-400 hover:text-red-500 ml-3"
+                    >
+                      <FiX size={18} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+        
+
+        {/* ======================================================= */}
+        {/*   OTHER STATIC SECTIONS — 100% ORIGINAL CODE  */}
+        {/* ======================================================= */}
 
         {/* --- Monitored Assets --- */}
         <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md">
@@ -35,8 +368,9 @@ export default function Settings() {
                 <FiGlobe className="text-blue-400" /> Domains
               </h3>
               <p className="text-gray-400 text-sm mt-1">
-                Monitor your organization’s domains for credentials, data breaches,
-                and mentions on dark web forums, paste sites, and marketplaces.
+                Monitor your organization’s domains for credentials, data
+                breaches, and mentions on dark web forums, paste sites, and
+                marketplaces.
               </p>
               <div className="flex flex-wrap gap-2 mt-2">
                 <span className="bg-[#1e3a63] text-sm px-3 py-1 rounded-full">
@@ -116,14 +450,17 @@ export default function Settings() {
 
           {/* Notification Channels */}
           <div className="mb-6">
-            <h3 className="font-medium text-gray-200 mb-2">Notification Channels</h3>
+            <h3 className="font-medium text-gray-200 mb-2">
+              Notification Channels
+            </h3>
             <div className="bg-[#1e3a63] rounded-xl p-4 flex items-center justify-between">
               <div>
                 <p className="font-medium flex items-center gap-2">
                   <FiMail className="text-blue-400" /> Email Alerts
                 </p>
                 <p className="text-sm text-gray-400">
-                  Receive immediate email notifications for high-severity incidents.
+                  Receive immediate email notifications for high-severity
+                  incidents.
                 </p>
               </div>
               <span className="bg-green-600 text-sm px-3 py-1 rounded-full">
@@ -139,11 +476,15 @@ export default function Settings() {
               Choose which severity levels trigger alerts
             </p>
             <div className="flex gap-2">
-              <span className="bg-red-600 px-3 py-1 text-sm rounded-full">High</span>
+              <span className="bg-red-600 px-3 py-1 text-sm rounded-full">
+                High
+              </span>
               <span className="bg-yellow-500 px-3 py-1 text-sm rounded-full text-black">
                 Medium
               </span>
-              <span className="bg-blue-500 px-3 py-1 text-sm rounded-full">Low</span>
+              <span className="bg-blue-500 px-3 py-1 text-sm rounded-full">
+                Low
+              </span>
             </div>
           </div>
         </section>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+  const webUserId=localStorage.getItem("webMonitoringuserId");
 
 // --- Inline SVG Icons (Reliable replacements for react-icons) ---
 
@@ -103,7 +104,7 @@ const StatsCard = ({ icon: Icon, title, value, description, color }) => (
 
 // Monitoring Frequency Radios
 const MonitoringFrequency = ({ selected, setSelected }) => {
-  const options = ["Check Now", "Daily", "Bi-weekly", "Weekly", "Monthly"];
+  const options = ["Check Now", "Daily", "Biweekly", "Weekly", "Monthly"];
   return (
     <div className="grid grid-cols-2 gap-4">
       {options.map((option) => (
@@ -163,11 +164,17 @@ const DomainMonitoringForm = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (!domainName) {
+      toast.error("Please enter a domain name!");
+      setLoading(false);
+      return;
+    }
+
     if (!frequency) {
-    toast.error("Please select a monitoring frequency!");
-    setLoading(false);
-    return;
-  }
+      toast.error("Please select a monitoring frequency!");
+      setLoading(false);
+      return;
+    }
 
     const finalFrequency =
       frequency === "Check Now" ? "daily" : frequency.toLowerCase();
@@ -208,7 +215,7 @@ const DomainMonitoringForm = () => {
             "Daily domain monitoring enabled. We’ll scan your domain every day at 9:00 AM IST and immediately notify you if we find any new dark-web exposure or suspicious activity.",
           weekly:
             "Weekly domain monitoring activated. We’ll scan your domain every Monday at 9:00 AM IST and alert you if we detect any suspicious activity.",
-          "bi-weekly":
+          biweekly:
             "Bi-weekly domain monitoring enabled. We’ll run a domain scan every 14 days at 9:00 AM IST and notify you immediately if any breach indicators appear.",
           monthly:
             "Monthly domain monitoring selected. We’ll scan your domain on the 1st of every month at 9:00 AM IST and inform you of any potential exposure.",
@@ -347,7 +354,7 @@ const EmailMonitoringForm = () => {
     e.preventDefault();
     setLoading(true);
 
-    if(!frequency) {
+    if (!frequency) {
       toast.error("Please select a monitoring frequency!");
       setLoading(false);
       return;
@@ -359,7 +366,7 @@ const EmailMonitoringForm = () => {
     try {
       if (uploadMode === "manual") {
         if (!manualEmails.trim()) {
-          toast.error("Please enter a domain or email before submitting!");
+          toast.error("Please enter  email before submitting!");
           setLoading(false);
           return;
         }
@@ -400,7 +407,7 @@ const EmailMonitoringForm = () => {
               "Daily email monitoring enabled. We’ll scan this email address every day at 9:00 AM IST and immediately notify you if it appears in any dark-web dumps or suspicious activity is found.",
             weekly:
               "Weekly email monitoring activated. We’ll scan this email address every Monday at 9:00 AM IST and alert you if we detect any suspicious exposure.",
-            "bi-weekly":
+            biweekly:
               "Bi-weekly email monitoring enabled. We’ll scan this email every 14 days at 9:00 AM IST and notify you immediately if it’s found in any breach or leak.",
             monthly:
               "Monthly email monitoring selected. We’ll scan this email on the 1st of every month at 9:00 AM IST and notify you of any potential exposure.",
@@ -439,7 +446,7 @@ const EmailMonitoringForm = () => {
         const frequencyMessages = {
           daily: `Daily email list monitoring enabled for ${fileName}. We’ll scan all uploaded emails every day at 9:00 AM IST and immediately notify you if any appear in dark-web leaks.`,
           weekly: `Weekly email list monitoring activated for ${fileName}. We’ll scan all uploaded emails every Monday at 9:00 AM IST and alert you if we detect any suspicious exposure.`,
-          "bi-weekly": `Bi-weekly email list monitoring enabled for ${fileName}. We’ll scan your uploaded list every 14 days at 9:00 AM IST and notify you if any addresses are found in breaches.`,
+          biweekly: `Bi-weekly email list monitoring enabled for ${fileName}. We’ll scan your uploaded list every 14 days at 9:00 AM IST and notify you if any addresses are found in breaches.`,
           monthly: `Monthly email list monitoring selected for ${fileName}. We’ll scan your uploaded list on the 1st of every month at 9:00 AM IST and inform you of any potential exposure.`,
         };
 
@@ -448,6 +455,7 @@ const EmailMonitoringForm = () => {
           ` ${fileName} uploaded successfully! Monitoring started (${finalFrequency}).`;
 
         toast.success(message, { autoClose: 8000 });
+        window.location.reload();
 
         setFile(null);
         setFileName("No file chosen");
@@ -468,33 +476,32 @@ const EmailMonitoringForm = () => {
   };
 
   // --- Download Template File ---
-const handleTemplateDownload = async () => {
-  try {
-    const res = await axios.get(
-      "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/template",
-      {
-        responseType: "blob", // IMPORTANT
-      }
-    );
+  const handleTemplateDownload = async () => {
+    try {
+      const res = await axios.get(
+        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/template",
+        {
+          responseType: "blob", // IMPORTANT
+        }
+      );
 
-    // Excel blob ko URL me convert karo
-    const fileURL = window.URL.createObjectURL(new Blob([res.data]));
+      // Excel blob ko URL me convert karo
+      const fileURL = window.URL.createObjectURL(new Blob([res.data]));
 
-    // Download trigger
-    const link = document.createElement("a");
-    link.href = fileURL;
-    link.setAttribute("download", "email_template.xlsx");
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+      // Download trigger
+      const link = document.createElement("a");
+      link.href = fileURL;
+      link.setAttribute("download", "email_template.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
-    toast.success("Template downloaded successfully!");
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to download template!");
-  }
-};
-
+      toast.success("Template downloaded successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to download template!");
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="p-8 space-y-6">
@@ -502,7 +509,7 @@ const handleTemplateDownload = async () => {
       <div className="space-y-1">
         <h4 className="text-lg font-medium text-gray-300 flex items-center space-x-2">
           <EmailIcon className="h-5 w-5 text-pink-500" />
-          <span>Monitor Email or Domain</span>
+          <span>Email Monitoring for Breaches</span>
         </h4>
         <p className="text-sm text-gray-400">
           You can upload employee email list or manually add a domain to monitor
@@ -549,21 +556,31 @@ const handleTemplateDownload = async () => {
       {uploadMode === "manual" ? (
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-300">
-            Enter Domain or Email
+            Enter Email Address
           </label>
           <input
             type="text"
             value={manualEmails}
             onChange={(e) => setManualEmails(e.target.value)}
-            placeholder="e.g. gmail.com or example@domain.com"
+            placeholder="e.g. gmail.com"
             className="w-full p-3 bg-gray-800 rounded-lg text-gray-200 border border-gray-700 focus:ring-2 focus:ring-pink-500 outline-none"
           />
         </div>
       ) : (
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-300">
-            Upload Email List (CSV/Excel)
-          </label>
+          <div className="flex  items-center gap-3">
+            <label className="block text-sm font-medium text-gray-300">
+              Upload Email List (CSV/Excel)
+            </label>
+
+            <button
+              className="px-2 py-1 bg-pink-600 text-white text-xs rounded-lg hover:bg-pink-500 transition-colors"
+              type="button"
+              onClick={handleTemplateDownload}
+            >
+              Download Template
+            </button>
+          </div>
           <div className="flex items-center space-x-2">
             <label className="cursor-pointer">
               <input
@@ -576,13 +593,11 @@ const handleTemplateDownload = async () => {
                 Choose File
               </span>
             </label>
-          <button className="px-4 py-2 bg-pink-600 text-white rounded-lg shadow-md hover:bg-pink-500 transition-colors" type="button" onClick={handleTemplateDownload}>Download Template</button>
             <span className="text-gray-400 truncate">{fileName}</span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
             Supported formats: CSV, XLSX, XLS, TXT (one email per line)
           </p>
-
         </div>
       )}
 

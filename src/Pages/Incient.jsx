@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 const userId = "6911e77cf1fe8011a0dcc486";
+const webUserId=localStorage.getItem("webMonitoringuserId");
 
 // --- SVG Icon ---
 const DomainIcon = (props) => (
@@ -57,15 +58,46 @@ const StatusBadge = ({ status }) => {
 // --- Details Modal ---
 const DetailsModal = ({ group, onClose }) => {
   if (!group) return null;
+  const firstIncident = group.incidents[0];
+
+  const detectedDate = new Date(firstIncident.detectedAt).toLocaleString(
+    "en-IN"
+  );
+  const severity = firstIncident.severity || "HIGH";
+  const status = firstIncident.incidentStatus.toUpperCase();
+  const type = firstIncident.targetType;
+  const tagetValue = firstIncident.targetValue;
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[#0f2747] text-gray-100 w-full max-w-3xl rounded-2xl shadow-2xl border border-blue-800/40 overflow-hidden">
-        <div className="flex items-start justify-between p-6 border-b border-blue-800/40">
-          <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-            Incident ID:{" "}
-            <span className="text-blue-300">{group.incidentId}</span>
-          </h3>
+      <div className="bg-[#0f2747] text-gray-100 w-full max-w-3xl rounded-2xl shadow-2xl border border-blue-800/40 overflow-hidden max-h-[90vh] flex flex-col">
+        
+        {/* HEADER */}
+        <div className="flex items-start justify-between p-6 border-b border-blue-800/40 sticky top-0 bg-[#0f2747] z-20">
+          <div>
+            <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+              Incident ID:{" "}
+              <span className="text-blue-300">{group.incidentId}</span>
+            </h3>
+
+            <div className="mt-2 text-sm text-gray-300 flex gap-3 items-center">
+              <p>
+                <strong>Detected:</strong> {detectedDate}
+              </p>
+              <p>
+                <StatusBadge status={status} />
+              </p>
+              <p>
+                <SeverityBadge severity={severity} />
+              </p>
+            </div>
+
+            <div className="mt-2 text-sm text-gray-300 flex gap-5">
+              <p><strong>Type:</strong> {type}</p>
+              <p><strong>Value:</strong> {tagetValue}</p>
+            </div>
+          </div>
+
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-pink-500 transition text-xl"
@@ -74,38 +106,16 @@ const DetailsModal = ({ group, onClose }) => {
           </button>
         </div>
 
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[80vh]">
+        {/* CONTENT */}
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
           {group.incidents.map((incident, index) => (
             <div
               key={incident._id + index}
               className="bg-[#132c52] border border-blue-800/40 rounded-xl p-4 space-y-3"
             >
-              <div className="flex justify-between items-center">
-                <h4 className="font-semibold text-blue-300">
-                  {incident.breachData?.Name}
-                </h4>
-                <div className="flex items-center space-x-2">
-                  <SeverityBadge severity={incident.severity || "HIGH"} />
-                  <StatusBadge status={incident.incidentStatus.toUpperCase()} />
-                </div>
-              </div>
-
-              <div className="text-sm text-gray-300">
-                <p>
-                  <strong>Target:</strong> {incident.targetValue}
-                </p>
-                <p>
-                  <strong>Type:</strong> {incident.targetType}
-                </p>
-                <p>
-                  <strong>Detected:</strong>{" "}
-                  {new Date(incident.detectedAt).toLocaleString("en-IN")}
-                </p>
-                <p>
-                  <strong>Source:</strong>{" "}
-                  {incident.breachData?.Name || "Unknown"}
-                </p>
-              </div>
+              <h4 className="font-semibold text-blue-300">
+                {incident.breachData?.Name}
+              </h4>
 
               {incident.breachData?.Description && (
                 <p
@@ -132,7 +142,8 @@ const DetailsModal = ({ group, onClose }) => {
           ))}
         </div>
 
-        <div className="px-6 py-4 border-t border-blue-800/40 text-right">
+        {/* FOOTER */}
+        <div className="px-6 py-4 border-t border-blue-800/40 text-right sticky bottom-0 bg-[#0f2747] z-20">
           <button
             onClick={onClose}
             className="bg-pink-600 hover:bg-pink-500 px-5 py-2 rounded-md font-medium text-white transition"
@@ -152,6 +163,10 @@ const IncidentManagement = () => {
   const [filter, setFilter] = useState("All");
   const [selectedGroup, setSelectedGroup] = useState(null);
 
+  // ---- PAGINATION STATE ----
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // default 10 per page
+
   useEffect(() => {
     const fetchIncidents = async () => {
       try {
@@ -160,10 +175,9 @@ const IncidentManagement = () => {
         );
 
         if (res.data.success) {
-          // --- GROUP BY incidentId (NEW) ---
           const grouped = Object.values(
             res.data.data.reduce((acc, inc) => {
-              const key = inc.incidentId; // ONLY incidentId
+              const key = inc.incidentId;
               if (!acc[key])
                 acc[key] = {
                   incidentId: key,
@@ -186,23 +200,16 @@ const IncidentManagement = () => {
   }, []);
 
   // Resolve handler
-  // Resolve handler USING API CALL
   const handleResolve = async (group) => {
     try {
-      // group ke pehle incident ka targetValue + targetType lenge
       const { targetValue, targetType } = group.incidents[0];
-
-      const payload = {
-        targetValue,
-        targetType,
-      };
+      const payload = { targetValue, targetType };
 
       await axios.post(
         "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/incidents/resolve-by-target",
         payload
       );
 
-      // UI update after API success
       setIncidents((prev) =>
         prev.map((g) =>
           g.incidentId === group.incidentId
@@ -221,7 +228,7 @@ const IncidentManagement = () => {
     }
   };
 
-  // Tab filter logic
+  // Filter logic
   const filteredGroups = incidents.filter((group) => {
     if (filter === "All") return true;
     if (filter === "Open")
@@ -231,14 +238,24 @@ const IncidentManagement = () => {
     return true;
   });
 
+  // ---- PAGINATION LOGIC ----
+  const totalRecords = filteredGroups.length;
+  const effectivePageSize = pageSize === "All" ? totalRecords : pageSize;
+  const totalPages = Math.ceil(totalRecords / effectivePageSize);
+
+  const startIndex = (currentPage - 1) * effectivePageSize;
+  const endIndex = startIndex + effectivePageSize;
+  const paginatedGroups = filteredGroups.slice(startIndex, endIndex);
+
   const capitalizeFirst = (str) => {
     if (!str) return "";
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
   return (
-    <div className="min-h-screen bg-[#0b203a] text-white px-6 py-10 font-sans">
+    <div className="min-h-screen bg-[#0b203a] text-white px-6 py-10">
       <div className="max-w-8xl mx-auto bg-[#0b203a] p-5 border border-blue-800 rounded-2xl shadow-lg">
+
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold">
@@ -249,7 +266,10 @@ const IncidentManagement = () => {
             {["All", "Open", "Resolved"].map((tab) => (
               <button
                 key={tab}
-                onClick={() => setFilter(tab)}
+                onClick={() => {
+                  setFilter(tab);
+                  setCurrentPage(1);
+                }}
                 className={`px-4 py-1 rounded-lg font-medium text-sm ${
                   filter === tab
                     ? "bg-pink-600"
@@ -285,7 +305,7 @@ const IncidentManagement = () => {
           </div>
         ) : (
           <div className="overflow-x-auto border border-blue-800 rounded-xl">
-            <table className="w-full text-sm text-left text-gray-300">
+            <table className="w-full text-sm text-gray-300">
               <thead className="bg-blue-900/40 text-gray-200 uppercase text-xs">
                 <tr>
                   <th className="px-6 py-3">Incident ID</th>
@@ -298,8 +318,9 @@ const IncidentManagement = () => {
                   <th className="px-6 py-3 pl-24">Action</th>
                 </tr>
               </thead>
+
               <tbody>
-                {filteredGroups.map((group) => {
+                {paginatedGroups.map((group) => {
                   const allTargets = [
                     ...new Set(group.incidents.map((i) => i.targetValue)),
                   ].join(", ");
@@ -308,13 +329,20 @@ const IncidentManagement = () => {
                     ...new Set(group.incidents.map((i) => i.targetType)),
                   ].join(", ");
 
-                  const allSources = [
+                  const uniqueSources = [
                     ...new Set(
                       group.incidents.map(
                         (i) => i.breachData?.Name || "Unknown"
                       )
                     ),
-                  ].join(", ");
+                  ];
+
+                  const allSources =
+                    uniqueSources.length > 10
+                      ? `${uniqueSources.slice(0, 10).join(", ")} ... (${
+                          uniqueSources.length - 10
+                        } more)`
+                      : uniqueSources.join(", ");
 
                   const allDetected = [
                     ...new Set(
@@ -324,18 +352,16 @@ const IncidentManagement = () => {
                     ),
                   ].join(", ");
 
-                  const anyOpen = group.incidents.some((i) => i.status);
-
                   return (
                     <tr
                       key={group.incidentId}
-                      className="border-t border-blue-800 hover:bg-blue-900/20 transition-all"
+                      className="border-t border-blue-800 hover:bg-blue-900/20"
                     >
                       <td className="px-6 py-4">{group.incidentId}</td>
                       <td className="px-6 py-4">{capitalizeFirst(allTypes)}</td>
 
-                      <td className="px-6 py-4 flex mt-5 items-center gap-2 font-semibold text-white">
-                        <DomainIcon className="h-4 w-4 text-pink-400" />{" "}
+                      <td className="px-6 py-4 flex mt-5 items-center gap-2">
+                        <DomainIcon className="h-4 w-4 text-pink-400" />
                         {capitalizeFirst(allTargets)}
                       </td>
 
@@ -376,6 +402,64 @@ const IncidentManagement = () => {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* PAGINATION CONTROLS */}
+        {!loading && filteredGroups.length > 0 && (
+          <div className="flex items-center justify-between mt-6">
+
+            {/* Page Size */}
+            <div className="flex items-center gap-2 text-gray-300">
+              <span className="text-sm">Rows per page:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(e.target.value === "All" ? "All" : Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="bg-blue-900 text-gray-200 px-3 py-1 rounded-md border border-blue-700"
+              >
+                {[5, 10, 20, 50, "All"].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Page Navigation */}
+            <div className="flex items-center gap-3 text-gray-200">
+
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+                className={`px-3 py-1 rounded-md ${
+                  currentPage === 1
+                    ? "bg-gray-700 cursor-not-allowed"
+                    : "bg-blue-900 hover:bg-blue-700"
+                }`}
+              >
+                Previous
+              </button>
+
+              <span className="text-sm">
+                Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+              </span>
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                className={`px-3 py-1 rounded-md ${
+                  currentPage === totalPages
+                    ? "bg-gray-700 cursor-not-allowed"
+                    : "bg-blue-900 hover:bg-blue-700"
+                }`}
+              >
+                Next
+              </button>
+
+            </div>
           </div>
         )}
       </div>
