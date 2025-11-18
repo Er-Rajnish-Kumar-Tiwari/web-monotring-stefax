@@ -143,7 +143,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-const DomainMonitoringForm = () => {
+const DomainMonitoringForm = ({emailsFornoti}) => {
   const [domainName, setDomainName] = useState("");
   const [frequency, setFrequency] = useState("");
   const [checkNow, setCheckNow] = useState(false);
@@ -182,8 +182,8 @@ const DomainMonitoringForm = () => {
     const payload = {
       domain: domainName,
       frequency: finalFrequency,
-      notifyEmails: ["user@gmail.com"],
-      createdBy: "6911e77cf1fe8011a0dcc486",
+      notifyEmails: [emailsFornoti],
+      createdBy: webUserId,
       checkNow: checkNow,
     };
 
@@ -269,7 +269,7 @@ const DomainMonitoringForm = () => {
           value={domainName}
           onChange={(e) => setDomainName(e.target.value)}
           className="w-full px-4 py-3 bg-gray-950/30 border border-blue-700 rounded-lg text-white placeholder-gray-500 focus:ring-pink-500 focus:border-pink-500 transition-colors"
-          placeholder="Enter your domain"
+          placeholder="example.com"
           required
         />
       </div>
@@ -319,7 +319,7 @@ const DomainMonitoringForm = () => {
   );
 };
 
-const EmailMonitoringForm = () => {
+const EmailMonitoringForm = ({emailsFornoti}) => {
   const [frequency, setFrequency] = useState("");
   const [fileName, setFileName] = useState("No file chosen");
   const [file, setFile] = useState(null);
@@ -376,8 +376,8 @@ const EmailMonitoringForm = () => {
           targetType: "email",
           targetValue: manualEmails.trim(),
           frequency: finalFrequency,
-          notifyEmails: ["admin@example.com"],
-          createdBy: "6911e77cf1fe8011a0dcc486",
+          notifyEmails: [emailsFornoti],
+          createdBy: webUserId,
           checkNow: checkNow,
         };
 
@@ -432,8 +432,8 @@ const EmailMonitoringForm = () => {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("frequency", finalFrequency);
-        formData.append("notifyEmails", "admin@example.com");
-        formData.append("createdBy", "6911e77cf1fe8011a0dcc486");
+        formData.append("notifyEmails", [emailsFornoti]);
+        formData.append("createdBy", webUserId);
 
         const res = await axios.post(
           "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
@@ -455,7 +455,6 @@ const EmailMonitoringForm = () => {
           ` ${fileName} uploaded successfully! Monitoring started (${finalFrequency}).`;
 
         toast.success(message, { autoClose: 8000 });
-        window.location.reload();
 
         setFile(null);
         setFileName("No file chosen");
@@ -509,11 +508,10 @@ const EmailMonitoringForm = () => {
       <div className="space-y-1">
         <h4 className="text-lg font-medium text-gray-300 flex items-center space-x-2">
           <EmailIcon className="h-5 w-5 text-pink-500" />
-          <span>Email Monitoring for Breaches</span>
+          <span>Monitor Email Addresses</span>
         </h4>
         <p className="text-sm text-gray-400">
-          You can upload employee email list or manually add a domain to monitor
-          data breaches.
+          Upload a list of employee email addresses to monitor for data breaches.
         </p>
       </div>
 
@@ -562,7 +560,7 @@ const EmailMonitoringForm = () => {
             type="text"
             value={manualEmails}
             onChange={(e) => setManualEmails(e.target.value)}
-            placeholder="e.g. gmail.com"
+            placeholder="example@gmail.com"
             className="w-full p-3 bg-gray-800 rounded-lg text-gray-200 border border-gray-700 focus:ring-2 focus:ring-pink-500 outline-none"
           />
         </div>
@@ -644,6 +642,40 @@ const EmailMonitoringForm = () => {
 const Overview = () => {
   const [activeFormTab, setActiveFormTab] = useState("domain"); // domain or email
   const currentYear = new Date().getFullYear();
+  const [emailsFornoti, setEmailsForNoti] = useState([]);
+
+  const fetchUserProfile = async () => {
+      const API =
+        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/profile/${webUserId}`;
+  
+      const authToken = localStorage.getItem("webMonitoringToken");
+  
+      try {
+        const res = await axios.get(API, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+  
+        console.log(res);
+        setEmailsForNoti(res.data.email);
+  
+        return res.data;
+      } catch (err) {
+        const apiError =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Something went wrong";
+  
+        toast.error(apiError);
+        return null;
+      }
+    };
+  
+    useEffect(() => {
+      fetchUserProfile();
+    }, []);
+  
 
   // Data for the top status cards (Image 1)
   return (
@@ -689,9 +721,9 @@ const Overview = () => {
             {/* Render Active Form */}
             <div className="text-white">
               {activeFormTab === "domain" ? (
-                <DomainMonitoringForm />
+                <DomainMonitoringForm emailsFornoti={emailsFornoti}/>
               ) : (
-                <EmailMonitoringForm />
+                <EmailMonitoringForm  emailsFornoti={emailsFornoti}/>
               )}
             </div>
           </div>

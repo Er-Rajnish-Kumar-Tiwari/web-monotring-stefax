@@ -3,6 +3,9 @@ import axios from "axios";
 import { FaShieldAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import bgImage from "../Pages/bg-new1.jpg";
+import logo from "../Pages/logo.png";
+import PhoneInput from "react-phone-input-2";
 
 const AuthPage = () => {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -57,7 +60,6 @@ const AuthPage = () => {
           country,
           contactno,
           isTermsAccepted: true,
-          notificationEmails: ["dummy@example.com"],
         });
 
         toast.success("User created successfully!");
@@ -83,13 +85,18 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0030] via-[#3a007a] to-[#5b00b3]">
-      <div className="bg-[#002f4b] p-8 rounded-2xl shadow-2xl w-full max-w-md text-white">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+      }}
+    >
+      <div className="bg-[#013f63] p-8 rounded-2xl shadow-2xl w-full max-w-md text-white">
         <div className="flex flex-col items-center mb-6">
-          <div className="bg-[#7c3aed] p-3 rounded-full">
-            <FaShieldAlt size={30} />
+          <div>
+            <img src={logo} alt="Logo" className="h-12 w-auto" />
           </div>
-          <h1 className="text-2xl font-bold mt-3">Dark Web Monitoring</h1>
+          <h1 className="text-2xl font-bold mt-3">Dark Net Tracker</h1>
           <p className="text-sm text-gray-300">
             Sign in to your account or create a new one
           </p>
@@ -160,16 +167,32 @@ const AuthPage = () => {
               </div>
 
               {/* Contact */}
+              {/* Contact Number */}
               <div>
                 <label className="block text-sm mb-1">Contact Number</label>
-                <input
-                  type="text"
-                  placeholder="+91 9876543210"
-                  className="w-full px-4 py-2 rounded-md bg-[#003a5c] text-white"
-                  value={contactno}
-                  onChange={(e) => setContactno(e.target.value)}
-                  required
-                />
+
+                <div className="bg-[#003a5c] rounded-md px-2 py-1">
+                  <PhoneInput
+                    country={"in"}
+                    value={contactno}
+                    onChange={(phone) => setContactno(phone)}
+                    inputStyle={{
+                      width: "100%",
+                      background: "#003a5c",
+                      border: "none",
+                      color: "white",
+                      fontSize: "16px",
+                    }}
+                    buttonStyle={{
+                      background: "#002b46",
+                      border: "none",
+                    }}
+                    dropdownStyle={{
+                      background: "#002b46",
+                      color: "white",
+                    }}
+                  />
+                </div>
               </div>
             </>
           )}

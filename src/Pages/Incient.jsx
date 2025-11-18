@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-const userId = "6911e77cf1fe8011a0dcc486";
-const webUserId=localStorage.getItem("webMonitoringuserId");
+const userId=localStorage.getItem("webMonitoringuserId");
 
 // --- SVG Icon ---
 const DomainIcon = (props) => (
@@ -94,7 +93,6 @@ const DetailsModal = ({ group, onClose }) => {
 
             <div className="mt-2 text-sm text-gray-300 flex gap-5">
               <p><strong>Type:</strong> {type}</p>
-              <p><strong>Value:</strong> {tagetValue}</p>
             </div>
           </div>
 
@@ -113,9 +111,14 @@ const DetailsModal = ({ group, onClose }) => {
               key={incident._id + index}
               className="bg-[#132c52] border border-blue-800/40 rounded-xl p-4 space-y-3"
             >
-              <h4 className="font-semibold text-blue-300">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-blue-300">
                 {incident.breachData?.Name}
               </h4>
+
+              <p className="text-xs bg-gray-600 px-2 py-1 rounded-md">{new Date(incident.breachData?.AddedDate).toLocaleDateString("en-IN")}</p>
+
+                </div>
 
               {incident.breachData?.Description && (
                 <p
@@ -173,6 +176,8 @@ const IncidentManagement = () => {
         const res = await axios.get(
           `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/incidents?userId=${userId}`
         );
+
+        console.log(res);
 
         if (res.data.success) {
           const grouped = Object.values(

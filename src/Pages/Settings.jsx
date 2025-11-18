@@ -12,6 +12,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { toast } from "react-toastify";
+const wemonitoringUserId = localStorage.getItem("webMonitoringuserId");
 
 export default function Settings() {
   const [fullName, setFullName] = useState("");
@@ -20,8 +21,7 @@ export default function Settings() {
   const [contactNo, setContactNo] = useState("");
 
   const fetchUserProfile = async () => {
-    const API =
-      "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/profile/691a95de0040f69ce13b7c4e";
+    const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/profile/${wemonitoringUserId}`;
 
     const authToken = localStorage.getItem("webMonitoringToken");
 
@@ -62,8 +62,7 @@ export default function Settings() {
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifyEmails, setNotifyEmails] = useState([]);
 
-  const userId = "691a95de0040f69ce13b7c4e";
-  const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${userId}`;
+  const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
 
   //  Yeh token apne login API se receive hota hai
   const authToken = localStorage.getItem("webMonitoringToken");
@@ -72,18 +71,17 @@ export default function Settings() {
   const handleAddOrgEmail = async () => {
     if (!orgEmail.trim()) return;
 
+    // Update local array
     const updated = [...orgEmails, orgEmail];
     setOrgEmails(updated);
     setOrgEmail("");
 
     const body = {
-      fullName: fullName,
-      companyName: companyName,
-      country: country,
+      fullName,
+      companyName,
+      country,
       contactno: contactNo,
-      notificationEmails: notifyEmails.length
-        ? notifyEmails
-        : ["user@gmail.com"],
+      notificationEmails: updated,
       isActive: true,
     };
 
@@ -97,12 +95,11 @@ export default function Settings() {
 
       toast.success(res.data?.message || "Organization Email Updated!");
     } catch (err) {
-      const apiError =
+      toast.error(
         err.response?.data?.message ||
-        err.response?.data?.error ||
-        "Something went wrong";
-
-      toast.error(apiError);
+          err.response?.data?.error ||
+          "Something went wrong"
+      );
     }
   };
 
@@ -115,11 +112,11 @@ export default function Settings() {
     setNotifyEmail("");
 
     const body = {
-      fullName: fullName,
-      companyName: companyName,
-      country: country,
+      fullName,
+      companyName,
+      country,
       contactno: contactNo,
-      notificationEmails: updatedList,
+      notificationEmails: updatedList, // 👈 also send org email array
       isActive: true,
     };
 
@@ -133,12 +130,11 @@ export default function Settings() {
 
       toast.success(res.data?.message || "Notify Email Updated!");
     } catch (err) {
-      const apiError =
+      toast.error(
         err.response?.data?.message ||
-        err.response?.data?.error ||
-        "Something went wrong";
-
-      toast.error(apiError);
+          err.response?.data?.error ||
+          "Something went wrong"
+      );
     }
   };
 
@@ -165,9 +161,6 @@ export default function Settings() {
           </p>
         </div>
 
-        {/* ======================================================= */}
-        {/* 1️⃣ ORGANIZATION ACCESS SECTION  (API CONNECTED) */}
-        {/* ======================================================= */}
         {/* ======================================================= */}
         {/* 1️⃣ ORGANIZATION ACCESS SECTION — UPDATED UI LIKE SCREENSHOT */}
         {/* ======================================================= */}
@@ -222,7 +215,6 @@ export default function Settings() {
             )}
           </div>
         </section>
-        
 
         {/* ======================================================= */}
         {/*   OTHER STATIC SECTIONS — 100% ORIGINAL CODE  */}

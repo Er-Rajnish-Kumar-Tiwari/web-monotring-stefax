@@ -7,6 +7,8 @@ import Icients from "./Pages/Incient";
 import Settings from "./Pages/Settings";
 import Dashboards from "./Pages/Dashboad";
 import AuthPage from "./Pages/Signup";
+import "react-phone-input-2/lib/style.css";
+
 
 import { Route, Routes, Navigate } from "react-router-dom";
 
