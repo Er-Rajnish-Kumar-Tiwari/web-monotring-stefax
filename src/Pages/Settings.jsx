@@ -21,7 +21,7 @@ export default function Settings() {
   const [contactNo, setContactNo] = useState("");
 
   const fetchUserProfile = async () => {
-    const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/profile/${wemonitoringUserId}`;
+    const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
 
     const authToken = localStorage.getItem("webMonitoringToken");
 
@@ -71,6 +71,11 @@ export default function Settings() {
   const handleAddOrgEmail = async () => {
     if (!orgEmail.trim()) return;
 
+    if (orgEmails.includes(orgEmail.trim())) {
+      toast.error("Email already added!");
+      return;
+    }
+
     // Update local array
     const updated = [...orgEmails, orgEmail];
     setOrgEmails(updated);
@@ -93,7 +98,7 @@ export default function Settings() {
         },
       });
 
-      toast.success(res.data?.message || "Organization Email Updated!");
+      toast.success(res.data?.message || "Organization Email Added!");
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
@@ -106,6 +111,11 @@ export default function Settings() {
   // =================== 2️⃣ NOTIFICATION EMAIL API CALL ===================
   const handleAddNotifyEmail = async () => {
     if (!notifyEmail.trim()) return;
+
+    if (notifyEmails.includes(notifyEmail.trim())) {
+      toast.error("Email already added!");
+      return;
+    }
 
     const updatedList = [...notifyEmails, notifyEmail];
     setNotifyEmails(updatedList);
@@ -128,7 +138,7 @@ export default function Settings() {
         },
       });
 
-      toast.success(res.data?.message || "Notify Email Updated!");
+      toast.success(res.data?.message || "Notify Email Added!");
     } catch (err) {
       toast.error(
         err.response?.data?.message ||

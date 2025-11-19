@@ -646,7 +646,7 @@ const Overview = () => {
 
   const fetchUserProfile = async () => {
       const API =
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/profile/${webUserId}`;
+        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${webUserId}`;
   
       const authToken = localStorage.getItem("webMonitoringToken");
   
