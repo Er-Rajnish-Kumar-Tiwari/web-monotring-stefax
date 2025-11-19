@@ -63,42 +63,42 @@ export default function Settings() {
   const [notifyEmails, setNotifyEmails] = useState([]);
 
   const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
+  const API2=`http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access`;
 
   //  Yeh token apne login API se receive hota hai
   const authToken = localStorage.getItem("webMonitoringToken");
+  const [grantEmail, setGrantEmail] = useState([]);
+  const [grantName, setGrantName] = useState([]);
+  const [grantDepartment, setGrantDepartment] = useState([]);
+  const [grantEmailList, setGrantEmailList] = useState([]);
 
   // =================== 1️⃣ ORG EMAIL API CALL ===================
   const handleAddOrgEmail = async () => {
-    if (!orgEmail.trim()) return;
 
-    if (orgEmails.includes(orgEmail.trim())) {
-      toast.error("Email already added!");
-      return;
-    }
+    if(!grantEmail || !grantName || !grantDepartment) return toast.error("Please fill all the fields");
 
-    // Update local array
-    const updated = [...orgEmails, orgEmail];
-    setOrgEmails(updated);
-    setOrgEmail("");
-
+    if(grantEmailList.includes(grantEmail)) return toast.error("Email already added!");
+    
     const body = {
-      fullName,
-      companyName,
-      country,
-      contactno: contactNo,
-      notificationEmails: updated,
-      isActive: true,
+      email: grantEmail,
+      fullName: grantName,
+      department: grantDepartment,
+      role:"admin"
     };
-
+  
     try {
-      const res = await axios.put(API, body, {
+      const res = await axios.post(API2, body, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
       });
 
-      toast.success(res.data?.message || "Organization Email Added!");
+      toast.success(res.data?.message || "User Access Granted!");
+      setGrantEmailList([...grantEmailList, grantEmail]);
+      setGrantDepartment("");
+      setGrantEmail("");
+      setGrantName("");
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
@@ -126,7 +126,7 @@ export default function Settings() {
       companyName,
       country,
       contactno: contactNo,
-      notificationEmails: updatedList, // 👈 also send org email array
+      notificationEmails: updatedList, 
       isActive: true,
     };
 
@@ -149,8 +149,8 @@ export default function Settings() {
   };
 
   const handleDeleteOrgEmail = (index) => {
-    const updated = orgEmails.filter((_, i) => i !== index);
-    setOrgEmails(updated);
+    const updated = grantEmailList.filter((_, i) => i !== index);
+    setGrantEmailList(updated);
   };
 
   const handleDeleteNotifyEmail = (index) => {
@@ -192,8 +192,8 @@ export default function Settings() {
               <input
                 type="email"
                 placeholder="user@example.com"
-                value={orgEmail}
-                onChange={(e) => setOrgEmail(e.target.value)}
+                value={grantEmail}
+                onChange={(e) => setGrantEmail(e.target.value)}
                 className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
               />
             </div>
@@ -204,7 +204,8 @@ export default function Settings() {
               <input
                 type="text"
                 placeholder="John Doe"
-                onChange={(e) => setFullName(e.target.value)}
+                value={grantName}
+                onChange={(e) => setGrantName(e.target.value)}
                 className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
               />
             </div>
@@ -218,6 +219,8 @@ export default function Settings() {
                 type="text"
                 placeholder="Security, IT, etc."
                 className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
+                value={grantDepartment}
+                onChange={(e) => setGrantDepartment(e.target.value)}
               />
             </div>
 
@@ -235,11 +238,11 @@ export default function Settings() {
 
           {/* USERS LIST */}
           <h3 className="text-gray-200 font-medium mb-2">
-            Users with Access ({orgEmails.length})
+            Users with Access ({grantEmailList.length})
           </h3>
 
           <div className="space-y-3">
-            {orgEmails.map((item, index) => (
+            {grantEmailList.map((item, index) => (
               <div
                 key={index}
                 className="bg-[#1e3a63] p-4 rounded-xl flex items-center justify-between"
