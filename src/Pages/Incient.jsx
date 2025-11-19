@@ -120,14 +120,19 @@ const DetailsModal = ({ group, onClose }) => {
 
                 </div>
 
-              {incident.breachData?.Description && (
-                <p
-                  className="text-gray-200 text-sm leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: incident.breachData.Description,
-                  }}
-                />
-              )}
+              {incident.breachData?.Description && (() => {
+  const sanitizedDescription = incident.breachData.Description?.replaceAll(
+    /<a\b[^>]*>(.*?)<\/a>/gi,
+    '<span style="color:inherit; text-decoration:none; cursor:default;">$1</span>'
+  );
+
+  return (
+    <p
+      className="text-gray-200 text-sm leading-relaxed"
+      dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+    />
+  );
+})()}
 
               {incident.breachData?.DataClasses?.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
