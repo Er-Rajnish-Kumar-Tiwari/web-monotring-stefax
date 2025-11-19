@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
   // State to track which tab is currently active.
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('web-dashboard');
 
   // Helper function to render tab button style
   const tabStyles = (tabName) => {

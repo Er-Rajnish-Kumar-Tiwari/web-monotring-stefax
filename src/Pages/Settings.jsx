@@ -165,7 +165,133 @@ export default function Settings() {
         {/* 1️⃣ ORGANIZATION ACCESS SECTION — UPDATED UI LIKE SCREENSHOT */}
         {/* ======================================================= */}
 
-        
+        <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md border border-[#1d355d]">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <FiShield className="text-pink-400" /> Grant User Access
+          </h2>
+
+          <p className="text-gray-400 text-sm mb-6">
+            Add team members who should receive access to the product
+          </p>
+
+          {/* INPUTS */}
+          <div className="space-y-4">
+            {/* Email */}
+            <div>
+              <label className="text-sm text-gray-300">Email Address</label>
+              <input
+                type="email"
+                placeholder="user@example.com"
+                value={orgEmail}
+                onChange={(e) => setOrgEmail(e.target.value)}
+                className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
+              />
+            </div>
+
+            {/* Full Name */}
+            <div>
+              <label className="text-sm text-gray-300">Full Name</label>
+              <input
+                type="text"
+                placeholder="John Doe"
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
+              />
+            </div>
+
+            {/* Department */}
+            <div>
+              <label className="text-sm text-gray-300">
+                Department (Optional)
+              </label>
+              <input
+                type="text"
+                placeholder="Security, IT, etc."
+                className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
+              />
+            </div>
+
+            {/* Add button */}
+            <button
+              onClick={handleAddOrgEmail}
+              className="bg-pink-600 hover:bg-pink-700 w-fit px-6 py-2.5 rounded-xl flex items-center gap-2"
+            >
+              <FiPlus /> Add
+            </button>
+          </div>
+
+          {/* Divider */}
+          <hr className="border-[#1e3a63] my-6" />
+
+          {/* USERS LIST */}
+          <h3 className="text-gray-200 font-medium mb-2">
+            Users with Access ({orgEmails.length})
+          </h3>
+
+          <div className="space-y-3">
+            {orgEmails.map((item, index) => (
+              <div
+                key={index}
+                className="bg-[#1e3a63] p-4 rounded-xl flex items-center justify-between"
+              >
+                {/* Left — Avatar + User Info */}
+                <div className="flex items-center gap-4">
+                  <div className="bg-pink-600 w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                    {item.charAt(0).toUpperCase()}
+                  </div>
+
+                  <div>
+                    <p className="text-white font-medium">
+                      {item.split("@")[0]}
+                    </p>
+                    <p className="text-gray-300 text-sm">{item}</p>
+                    <p className="text-gray-500 text-xs">
+                      Added {new Date().toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Delete */}
+                <button
+                  onClick={() => handleDeleteOrgEmail(index)}
+                  className="text-red-400 hover:text-red-500"
+                >
+                  <FiX size={20} />
+                </button>
+              </div>
+            ))}
+
+            {orgEmails.length === 0 && (
+              <p className="text-gray-400 text-sm">No users added yet.</p>
+            )}
+          </div>
+
+          {/* INFO BOX — Same UI Like Screenshot */}
+          <div className="mt-6 bg-[#0c2650] border border-[#2f5fa5] rounded-2xl p-6 text-gray-300">
+            <div className="flex items-center gap-2 mb-3">
+              <FiMail className="text-pink-400" size={20} />
+              <h3 className="text-white font-semibold">
+                What happens when you add a user?
+              </h3>
+            </div>
+
+            <ul className="text-sm space-y-1">
+              <li>
+                • They receive an email with login credentials and access
+                instructions
+              </li>
+              <li>• Access is granted immediately </li>
+              <li>
+                • They can log in and start using the Dark Web Monitoring
+                product
+              </li>
+              <li>
+                • You can revoke access anytime by removing them from the list
+              </li>
+            </ul>
+          </div>
+        </section>
+
         <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <FiMail className="text-pink-400" /> Breach Notification Emails
