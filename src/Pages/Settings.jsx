@@ -19,6 +19,7 @@ export default function Settings() {
   const [companyName, setCompanyName] = useState("");
   const [country, setCountry] = useState("");
   const [contactNo, setContactNo] = useState("");
+  const [notificationEmailsList, setNotificationEmailsList] = useState([]);
 
   const fetchUserProfile = async () => {
     const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
@@ -38,6 +39,7 @@ export default function Settings() {
       setCompanyName(res.data.companyName);
       setCountry(res.data.country);
       setContactNo(res.data.contactno);
+      setNotificationEmailsList(res.data.notificationEmails);
 
       return res.data;
     } catch (err) {
@@ -53,6 +55,7 @@ export default function Settings() {
 
   useEffect(() => {
     fetchUserProfile();
+    console.log(notificationEmailsList);
   }, []);
 
   // STATES
@@ -117,7 +120,7 @@ export default function Settings() {
       return;
     }
 
-    const updatedList = [...notifyEmails, notifyEmail];
+    const updatedList = [...notificationEmailsList, notifyEmail];
     setNotifyEmails(updatedList);
     setNotifyEmail("");
 
@@ -139,6 +142,9 @@ export default function Settings() {
       });
 
       toast.success(res.data?.message || "Notify Email Added!");
+      setTimeout(() => {
+        window.location.reload();
+      }, 4000);
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
@@ -148,15 +154,42 @@ export default function Settings() {
     }
   };
 
+  useEffect(()=>{
+    handleAddNotifyEmail();
+  },[]);
+
   const handleDeleteOrgEmail = (index) => {
     const updated = grantEmailList.filter((_, i) => i !== index);
     setGrantEmailList(updated);
   };
 
-  const handleDeleteNotifyEmail = (index) => {
-    const updated = notifyEmails.filter((_, i) => i !== index);
-    setNotifyEmails(updated);
-  };
+  const handleDeleteNotifyEmail = async (index, emailId) => {
+  try {
+    // DELETE API URL
+    const url = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/notification-emails/${wemonitoringUserId}`;
+
+    // API Call
+    const response = await axios.delete(url, {
+      data: {
+        email:emailId,  // your payload
+      },
+    });
+
+    // Success Toast
+    toast.success("Email deleted successfully!");
+
+    // Update UI state
+    const updated = notificationEmailsList.filter((_, i) => i !== index);
+    setNotificationEmailsList(updated);
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to delete email!");
+  }
+};
+
+
+console.log(notificationEmailsList);
 
   return (
     <div className="min-h-screen bg-[#0b203a] text-white p-8">
@@ -332,18 +365,18 @@ export default function Settings() {
           </div>
 
           <div className="mt-3 text-gray-400 text-sm">
-            {notifyEmails.length === 0 ? (
+            {notificationEmailsList.length === 0 ? (
               <p>No notification emails added yet.</p>
             ) : (
               <ul className="mt-2 space-y-2">
-                {notifyEmails.map((item, index) => (
+                {notificationEmailsList.map((item, index) => (
                   <li
                     key={index}
                     className="bg-[#1e3a63] px-3 py-2 rounded-lg text-white text-sm flex justify-between items-center"
                   >
                     {item}
                     <button
-                      onClick={() => handleDeleteNotifyEmail(index)}
+                      onClick={() => handleDeleteNotifyEmail(index, item)}
                       className="text-red-400 hover:text-red-500 ml-3"
                     >
                       <FiX size={18} />

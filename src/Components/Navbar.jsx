@@ -15,7 +15,7 @@ const Navbar = () => {
     }, 2000); // 2 seconds
   };
   return (
-    <header className="bg-gray-300 text-white w-full border-b border-gray-700 shadow-md">
+    <header className="bg-[#113b5c] text-white w-full border-b border-gray-700 shadow-md">
       <div className="max-w-9xl mx-auto h-20 flex justify-between items-center px-8">
         {/* Left side: Logo */}
         <div className="flex items-center space-x-3">
