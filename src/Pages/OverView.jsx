@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-  const webUserId=localStorage.getItem("webMonitoringuserId");
+const webUserId = localStorage.getItem("webMonitoringuserId");
 
 // --- Inline SVG Icons (Reliable replacements for react-icons) ---
 
@@ -143,7 +143,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-const DomainMonitoringForm = ({emailsFornoti}) => {
+const DomainMonitoringForm = ({ emailsFornoti }) => {
   const [domainName, setDomainName] = useState("");
   const [frequency, setFrequency] = useState("");
   const [checkNow, setCheckNow] = useState(false);
@@ -319,7 +319,7 @@ const DomainMonitoringForm = ({emailsFornoti}) => {
   );
 };
 
-const EmailMonitoringForm = ({emailsFornoti}) => {
+const EmailMonitoringForm = ({ emailsFornoti }) => {
   const [frequency, setFrequency] = useState("");
   const [fileName, setFileName] = useState("No file chosen");
   const [file, setFile] = useState(null);
@@ -429,11 +429,15 @@ const EmailMonitoringForm = ({emailsFornoti}) => {
           return;
         }
 
+        const finalFrequency =
+          frequency === "Check Now" ? "daily" : frequency.toLowerCase();
+
         const formData = new FormData();
         formData.append("file", file);
         formData.append("frequency", finalFrequency);
         formData.append("notifyEmails", [emailsFornoti]);
         formData.append("createdBy", webUserId);
+        formData.append("checkNow", checkNow);
 
         const res = await axios.post(
           "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
@@ -441,21 +445,35 @@ const EmailMonitoringForm = ({emailsFornoti}) => {
           { headers: { "Content-Type": "multipart/form-data" } }
         );
 
-        console.log("Email Monitoring Started:", res.data);
+        if (checkNow) {
+          // ✅ Instant check mode
+          const breaches = res?.data?.breaches || [];
+          if (breaches.length > 0) {
+            toast.success(
+              `${breaches.length} breach(es) found! Please check the incidents page.`
+            );
+          } else {
+            toast.info("No breaches found for this email/domain.");
+          }
+        } else {
+          // ✅ Frequency-based success messages
+          const frequencyMessages = {
+            daily:
+              "Daily email monitoring enabled. We’ll scan this email address every day at 9:00 AM IST and immediately notify you if it appears in any dark-web dumps or suspicious activity is found.",
+            weekly:
+              "Weekly email monitoring activated. We’ll scan this email address every Monday at 9:00 AM IST and alert you if we detect any suspicious exposure.",
+            biweekly:
+              "Bi-weekly email monitoring enabled. We’ll scan this email every 14 days at 9:00 AM IST and notify you immediately if it’s found in any breach or leak.",
+            monthly:
+              "Monthly email monitoring selected. We’ll scan this email on the 1st of every month at 9:00 AM IST and notify you of any potential exposure.",
+          };
 
-        const frequencyMessages = {
-          daily: `Daily email list monitoring enabled for ${fileName}. We’ll scan all uploaded emails every day at 9:00 AM IST and immediately notify you if any appear in dark-web leaks.`,
-          weekly: `Weekly email list monitoring activated for ${fileName}. We’ll scan all uploaded emails every Monday at 9:00 AM IST and alert you if we detect any suspicious exposure.`,
-          biweekly: `Bi-weekly email list monitoring enabled for ${fileName}. We’ll scan your uploaded list every 14 days at 9:00 AM IST and notify you if any addresses are found in breaches.`,
-          monthly: `Monthly email list monitoring selected for ${fileName}. We’ll scan your uploaded list on the 1st of every month at 9:00 AM IST and inform you of any potential exposure.`,
-        };
+          const message =
+            frequencyMessages[finalFrequency] ||
+            `Monitoring started for ${manualEmails} (${finalFrequency}).`;
 
-        const message =
-          frequencyMessages[finalFrequency] ||
-          ` ${fileName} uploaded successfully! Monitoring started (${finalFrequency}).`;
-
-        toast.success(message, { autoClose: 8000 });
-
+          toast.success(message);
+        }
         setFile(null);
         setFileName("No file chosen");
       }
@@ -511,7 +529,8 @@ const EmailMonitoringForm = ({emailsFornoti}) => {
           <span>Monitor Email Addresses</span>
         </h4>
         <p className="text-sm text-gray-400">
-          Upload a list of employee email addresses to monitor for data breaches.
+          Upload a list of employee email addresses to monitor for data
+          breaches.
         </p>
       </div>
 
@@ -645,37 +664,35 @@ const Overview = () => {
   const [emailsFornoti, setEmailsForNoti] = useState([]);
 
   const fetchUserProfile = async () => {
-      const API =
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${webUserId}`;
-  
-      const authToken = localStorage.getItem("webMonitoringToken");
-  
-      try {
-        const res = await axios.get(API, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-  
-        console.log(res);
-        setEmailsForNoti(res.data.email);
-  
-        return res.data;
-      } catch (err) {
-        const apiError =
-          err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Something went wrong";
-  
-        toast.error(apiError);
-        return null;
-      }
-    };
-  
-    useEffect(() => {
-      fetchUserProfile();
-    }, []);
-  
+    const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${webUserId}`;
+
+    const authToken = localStorage.getItem("webMonitoringToken");
+
+    try {
+      const res = await axios.get(API, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      console.log(res);
+      setEmailsForNoti(res.data.email);
+
+      return res.data;
+    } catch (err) {
+      const apiError =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Something went wrong";
+
+      toast.error(apiError);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
 
   // Data for the top status cards (Image 1)
   return (
@@ -721,9 +738,9 @@ const Overview = () => {
             {/* Render Active Form */}
             <div className="text-white">
               {activeFormTab === "domain" ? (
-                <DomainMonitoringForm emailsFornoti={emailsFornoti}/>
+                <DomainMonitoringForm emailsFornoti={emailsFornoti} />
               ) : (
-                <EmailMonitoringForm  emailsFornoti={emailsFornoti}/>
+                <EmailMonitoringForm emailsFornoti={emailsFornoti} />
               )}
             </div>
           </div>

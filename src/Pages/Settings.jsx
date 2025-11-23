@@ -12,6 +12,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { toast } from "react-toastify";
+import SettingsPage from "../Components/Profile";
 const wemonitoringUserId = localStorage.getItem("webMonitoringuserId");
 
 export default function Settings() {
@@ -66,7 +67,7 @@ export default function Settings() {
   const [notifyEmails, setNotifyEmails] = useState([]);
 
   const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
-  const API2=`http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access`;
+  const API2=`http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access/${wemonitoringUserId}`;
 
   //  Yeh token apne login API se receive hota hai
   const authToken = localStorage.getItem("webMonitoringToken");
@@ -577,6 +578,8 @@ console.log(notificationEmailsList);
             </div>
           </div>
         </section>
+
+        <SettingsPage/>
       </div>
     </div>
   );
