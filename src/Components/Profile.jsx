@@ -62,7 +62,6 @@ export default function SettingsPage() {
         setCompanyName(res.data?.companyName ?? "");
       } catch (err) {
         console.error("API Error:", err);
-        toast.error("Failed to fetch user details.");
       } finally {
         setLoadingProfile(false);
       }

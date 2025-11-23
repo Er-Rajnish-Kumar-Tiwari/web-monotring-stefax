@@ -385,7 +385,7 @@ const IncidentManagement = () => {
                       </td>
 
                       <td className="px-6 py-4">
-                        <SeverityBadge severity="HIGH" />
+                        <SeverityBadge severity={group.incidents[0].severity} />
                       </td>
 
                       <td className="px-6 py-4 space-x-2">
