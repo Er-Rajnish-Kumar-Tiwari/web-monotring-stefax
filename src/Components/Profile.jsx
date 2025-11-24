@@ -170,7 +170,7 @@ export default function SettingsPage() {
             <div>
               <h1 className="text-2xl font-semibold text-white">Profile</h1>
               <p className="text-sm text-gray-200">
-                Update your account profile information and email address
+                Update your account profile information 
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-const userId=localStorage.getItem("webMonitoringuserId");
+const userId = localStorage.getItem("webMonitoringuserId");
 
 // --- SVG Icon ---
 const DomainIcon = (props) => (
@@ -16,6 +16,22 @@ const DomainIcon = (props) => (
   >
     <circle cx="12" cy="12" r="10"></circle>
     <path d="M12 2a14.5 14.5 0 0 0 0 20M2 12h20"></path>
+  </svg>
+);
+
+const EmailIcon = (props) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+    <polyline points="22,6 12,13 2,6"></polyline>
   </svg>
 );
 
@@ -70,7 +86,6 @@ const DetailsModal = ({ group, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-[#0f2747] text-gray-100 w-full max-w-3xl rounded-2xl shadow-2xl border border-blue-800/40 overflow-hidden max-h-[90vh] flex flex-col">
-        
         {/* HEADER */}
         <div className="flex items-start justify-between p-6 border-b border-blue-800/40 sticky top-0 bg-[#0f2747] z-20">
           <div>
@@ -92,7 +107,9 @@ const DetailsModal = ({ group, onClose }) => {
             </div>
 
             <div className="mt-2 text-sm text-gray-300 flex gap-5">
-              <p><strong>Type:</strong> {type}</p>
+              <p>
+                <strong>Type:</strong> {type}
+              </p>
             </div>
           </div>
 
@@ -113,26 +130,31 @@ const DetailsModal = ({ group, onClose }) => {
             >
               <div className="flex items-center justify-between">
                 <h4 className="font-semibold text-blue-300">
-                {incident.breachData?.Name}
-              </h4>
+                  {incident.breachData?.Name}
+                </h4>
 
-              <p className="text-xs bg-gray-600 px-2 py-1 rounded-md">{new Date(incident.breachData?.AddedDate).toLocaleDateString("en-IN")}</p>
+                <p className="text-xs bg-gray-600 px-2 py-1 rounded-md">
+                  {new Date(incident.breachData?.AddedDate).toLocaleDateString(
+                    "en-IN"
+                  )}
+                </p>
+              </div>
 
-                </div>
+              {incident.breachData?.Description &&
+                (() => {
+                  const sanitizedDescription =
+                    incident.breachData.Description?.replaceAll(
+                      /<a\b[^>]*>(.*?)<\/a>/gi,
+                      '<span style="color:inherit; text-decoration:none; cursor:default;">$1</span>'
+                    );
 
-              {incident.breachData?.Description && (() => {
-  const sanitizedDescription = incident.breachData.Description?.replaceAll(
-    /<a\b[^>]*>(.*?)<\/a>/gi,
-    '<span style="color:inherit; text-decoration:none; cursor:default;">$1</span>'
-  );
-
-  return (
-    <p
-      className="text-gray-200 text-sm leading-relaxed"
-      dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-    />
-  );
-})()}
+                  return (
+                    <p
+                      className="text-gray-200 text-sm leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+                    />
+                  );
+                })()}
 
               {incident.breachData?.DataClasses?.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
@@ -265,7 +287,6 @@ const IncidentManagement = () => {
   return (
     <div className="min-h-screen bg-[#0b203a] text-white px-6 py-10">
       <div className="max-w-8xl mx-auto bg-[#0b203a] p-5 border border-blue-800 rounded-2xl shadow-lg">
-
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold">
@@ -322,10 +343,10 @@ const IncidentManagement = () => {
                   <th className="px-6 py-3">Type</th>
                   <th className="px-6 py-3">Target</th>
                   <th className="px-6 py-3">Sources</th>
-                  <th className="px-6 py-3">Detected</th>
+                  <th className="px-2 py-3">Detected Date</th>
                   <th className="px-6 py-3">Status</th>
                   <th className="px-6 py-3">Severity</th>
-                  <th className="px-6 py-3 pl-24">Action</th>
+                  <th className="px-6 py-3 pl-30">Action</th>
                 </tr>
               </thead>
 
@@ -371,7 +392,12 @@ const IncidentManagement = () => {
                       <td className="px-6 py-4">{capitalizeFirst(allTypes)}</td>
 
                       <td className="px-6 py-4 flex mt-5 items-center gap-2">
-                        <DomainIcon className="h-4 w-4 text-pink-400" />
+                        {allTargets.includes("@") ? (
+                          <EmailIcon className="h-4 w-4 text-pink-400" />
+                        ) : (
+                          <DomainIcon className="h-4 w-4 text-pink-400" />
+                        )}
+
                         {capitalizeFirst(allTargets)}
                       </td>
 
@@ -418,14 +444,15 @@ const IncidentManagement = () => {
         {/* PAGINATION CONTROLS */}
         {!loading && filteredGroups.length > 0 && (
           <div className="flex items-center justify-between mt-6">
-
             {/* Page Size */}
             <div className="flex items-center gap-2 text-gray-300">
               <span className="text-sm">Rows per page:</span>
               <select
                 value={pageSize}
                 onChange={(e) => {
-                  setPageSize(e.target.value === "All" ? "All" : Number(e.target.value));
+                  setPageSize(
+                    e.target.value === "All" ? "All" : Number(e.target.value)
+                  );
                   setCurrentPage(1);
                 }}
                 className="bg-blue-900 text-gray-200 px-3 py-1 rounded-md border border-blue-700"
@@ -440,7 +467,6 @@ const IncidentManagement = () => {
 
             {/* Page Navigation */}
             <div className="flex items-center gap-3 text-gray-200">
-
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => p - 1)}
@@ -454,7 +480,8 @@ const IncidentManagement = () => {
               </button>
 
               <span className="text-sm">
-                Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+                Page <strong>{currentPage}</strong> of{" "}
+                <strong>{totalPages}</strong>
               </span>
 
               <button
@@ -468,7 +495,6 @@ const IncidentManagement = () => {
               >
                 Next
               </button>
-
             </div>
           </div>
         )}

@@ -145,7 +145,7 @@ import { useNavigate } from "react-router-dom";
 
 const DomainMonitoringForm = ({ emailsFornoti }) => {
   const [domainName, setDomainName] = useState("");
-  const [frequency, setFrequency] = useState("");
+  const [frequency, setFrequency] = useState("Check Now");
   const [checkNow, setCheckNow] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -267,10 +267,15 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
           type="text"
           id="domain"
           value={domainName}
-          onChange={(e) => setDomainName(e.target.value)}
+          onChange={(e) => {
+            // remove @ instantly
+            const cleaned = e.target.value.replace(/@/g, "");
+            setDomainName(cleaned);
+          }}
           className="w-full px-4 py-3 bg-gray-950/30 border border-blue-700 rounded-lg text-white placeholder-gray-500 focus:ring-pink-500 focus:border-pink-500 transition-colors"
           placeholder="example.com"
           required
+          pattern="^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$"
         />
       </div>
 
@@ -320,10 +325,10 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
 };
 
 const EmailMonitoringForm = ({ emailsFornoti }) => {
-  const [frequency, setFrequency] = useState("");
+  const [frequency, setFrequency] = useState("Check Now");
   const [fileName, setFileName] = useState("No file chosen");
   const [file, setFile] = useState(null);
-  const [uploadMode, setUploadMode] = useState("upload");
+  const [uploadMode, setUploadMode] = useState("manual");
   const [manualEmails, setManualEmails] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkNow, setCheckNow] = useState(false);
@@ -576,7 +581,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
             Enter Email Address
           </label>
           <input
-            type="text"
+            type="email"
             value={manualEmails}
             onChange={(e) => setManualEmails(e.target.value)}
             placeholder="example@gmail.com"

@@ -71,9 +71,9 @@ export default function Settings() {
 
   //  Yeh token apne login API se receive hota hai
   const authToken = localStorage.getItem("webMonitoringToken");
-  const [grantEmail, setGrantEmail] = useState([]);
-  const [grantName, setGrantName] = useState([]);
-  const [grantDepartment, setGrantDepartment] = useState([]);
+  const [grantEmail, setGrantEmail] = useState("");
+  const [grantName, setGrantName] = useState("");
+  const [grantDepartment, setGrantDepartment] = useState("");
   const [grantEmailList, setGrantEmailList] = useState([]);
 
   // =================== 1️⃣ ORG EMAIL API CALL ===================
@@ -145,7 +145,7 @@ export default function Settings() {
       toast.success(res.data?.message || "Notify Email Added!");
       setTimeout(() => {
         window.location.reload();
-      }, 4000);
+      }, 1000);
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
@@ -227,6 +227,7 @@ console.log(notificationEmailsList);
                 type="email"
                 placeholder="user@example.com"
                 value={grantEmail}
+                required
                 onChange={(e) => setGrantEmail(e.target.value)}
                 className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
               />
@@ -247,7 +248,7 @@ console.log(notificationEmailsList);
             {/* Department */}
             <div>
               <label className="text-sm text-gray-300">
-                Department (Optional)
+                Department
               </label>
               <input
                 type="text"
@@ -437,42 +438,6 @@ console.log(notificationEmailsList);
                   Example: user@company.com
                 </span>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* --- Monitoring Frequency --- */}
-        <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <FiDatabase className="text-pink-400" /> Monitoring Frequency
-          </h2>
-          <p className="text-gray-400 text-sm mb-4">
-            Set how often we scan for new threats
-          </p>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="bg-[#1e3a63] p-4 rounded-xl">
-              <h3 className="font-semibold">Daily Scans</h3>
-              <p className="text-sm text-gray-400 mt-1">
-                Continuous monitoring with daily sweeps across dark web sources.
-              </p>
-              <span className="text-xs bg-pink-600 px-2 py-0.5 rounded-full mt-2 inline-block">
-                Default
-              </span>
-            </div>
-
-            <div className="bg-[#1e3a63] p-4 rounded-xl">
-              <h3 className="font-semibold">Weekly Scans</h3>
-              <p className="text-sm text-gray-400 mt-1">
-                Regular weekly checks for lower-priority assets.
-              </p>
-            </div>
-
-            <div className="bg-[#1e3a63] p-4 rounded-xl">
-              <h3 className="font-semibold">Real-time</h3>
-              <p className="text-sm text-gray-400 mt-1">
-                Immediate alerts for critical assets (requires premium).
-              </p>
             </div>
           </div>
         </section>
