@@ -8,6 +8,7 @@ import PhoneInput from "react-phone-input-2";
 
 const AuthPage = () => {
   const [isSignIn, setIsSignIn] = useState(true);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   // Shared inputs
   const [email, setEmail] = useState("");
@@ -33,10 +34,9 @@ const AuthPage = () => {
   const LOGIN_URL =
     "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/login";
 
-  const VERIFY_OTP_URL =
-    `http://195.35.21.108:7001/auth/api/v1/otp/verify?email=${encodeURIComponent(email)}&otp=${otp}`;
-;
-
+  const VERIFY_OTP_URL = `http://195.35.21.108:7001/auth/api/v1/otp/verify?email=${encodeURIComponent(
+    email
+  )}&otp=${otp}`;
   // ----------------------------------------
   // SUBMIT FUNCTION (SignIn / SignUp)
   // ----------------------------------------
@@ -61,7 +61,7 @@ const AuthPage = () => {
       }
 
       toast.success("OTP sent to your email!");
-      
+
       localStorage.setItem("webMonitoringToken", response.data.passcode);
       localStorage.setItem("webMonitoringuserId", response.data.user);
       localStorage.setItem("webMonitoringTempUser", response.data.user);
@@ -94,14 +94,17 @@ const AuthPage = () => {
 
       toast.success("Email Verified Successfully!");
 
-      // Save login data and redirect
-
-      // Close OTP popup
+      // ✅ OTP popup close
       setShowOtpPopup(false);
 
-      // Redirect
-      navigate("/web-dashboard");
-      setTimeout(() => window.location.reload(), 1000);
+      // ✅ Success popup open
+      setShowSuccessPopup(true);
+
+      // ⏳ 2 sec delay → redirect
+      setTimeout(() => {
+        navigate("/web-dashboard");
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Invalid OTP!");
     }
@@ -315,6 +318,37 @@ const AuthPage = () => {
                 Resend
               </span>
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* SUCCESS POPUP */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[60]">
+          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-8 text-center animate-bounceIn">
+            {/* Tick Icon */}
+            <div className="flex justify-center mb-4">
+              <div className="bg-green-100 p-4 rounded-full">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-10 w-10 text-green-600"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-800">
+              Verification Successful!
+            </h2>
+
+            <p className="text-gray-500 mt-2">Redirecting to dashboard...</p>
           </div>
         </div>
       )}

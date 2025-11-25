@@ -206,7 +206,7 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
             `${breaches.length} breach(es) found! Please check the incidents page.`
           );
         } else {
-          toast.info("No breaches found for this domain.");
+          toast.info(response.data.message);
         }
       } else {
         // Normal monitoring mode with custom messages
@@ -230,12 +230,20 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
 
       setDomainName("");
       setFrequency("");
-    } catch (error) {
-      console.error("Error starting monitoring:", error);
-      toast.error("Failed to start monitoring. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+} catch (error) {
+  console.error("Error starting monitoring:", error);
+
+  const errMsg =
+    error?.response?.data?.message ||
+    error?.message ||
+    "Something went wrong";
+
+  console.log("Error Message:", errMsg);
+  toast.error(errMsg); // Optional UI toast
+} finally {
+  setLoading(false);
+}
+
   };
 
   const getButtonText = () => {
@@ -403,7 +411,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
               `${breaches.length} breach(es) found! Please check the incidents page.`
             );
           } else {
-            toast.info("No breaches found for this email/domain.");
+            toast.info(res.data.message);
           }
         } else {
           // ✅ Frequency-based success messages
@@ -458,7 +466,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
               `${breaches.length} breach(es) found! Please check the incidents page.`
             );
           } else {
-            toast.info("No breaches found for this email/domain.");
+            toast.info(res.data.message);
           }
         } else {
           // ✅ Frequency-based success messages
