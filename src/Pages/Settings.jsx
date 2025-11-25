@@ -67,7 +67,7 @@ export default function Settings() {
   const [notifyEmails, setNotifyEmails] = useState([]);
 
   const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
-  const API2=`http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access/${wemonitoringUserId}`;
+  const API2 = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access/${wemonitoringUserId}`;
 
   //  Yeh token apne login API se receive hota hai
   const authToken = localStorage.getItem("webMonitoringToken");
@@ -78,18 +78,19 @@ export default function Settings() {
 
   // =================== 1️⃣ ORG EMAIL API CALL ===================
   const handleAddOrgEmail = async () => {
+    if (!grantEmail || !grantName || !grantDepartment)
+      return toast.error("Please fill all the fields");
 
-    if(!grantEmail || !grantName || !grantDepartment) return toast.error("Please fill all the fields");
+    if (grantEmailList.includes(grantEmail))
+      return toast.error("Email already added!");
 
-    if(grantEmailList.includes(grantEmail)) return toast.error("Email already added!");
-    
     const body = {
       email: grantEmail,
       fullName: grantName,
       department: grantDepartment,
-      role:"admin"
+      role: "admin",
     };
-  
+
     try {
       const res = await axios.post(API2, body, {
         headers: {
@@ -100,6 +101,9 @@ export default function Settings() {
 
       toast.success(res.data?.message || "User Access Granted!");
       setGrantEmailList([...grantEmailList, grantEmail]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
       setGrantDepartment("");
       setGrantEmail("");
       setGrantName("");
@@ -130,7 +134,7 @@ export default function Settings() {
       companyName,
       country,
       contactno: contactNo,
-      notificationEmails: updatedList, 
+      notificationEmails: updatedList,
       isActive: true,
     };
 
@@ -155,42 +159,66 @@ export default function Settings() {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     handleAddNotifyEmail();
-  },[]);
+  }, []);
 
-  const handleDeleteOrgEmail = (index) => {
-    const updated = grantEmailList.filter((_, i) => i !== index);
-    setGrantEmailList(updated);
+  const handleDeleteOrgEmail = async (userId) => {
+    try {
+      await axios.delete(
+        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/revoke-access/${wemonitoringUserId}`
+      );
+
+      toast.success("Access revoked!");
+
+      // UI se remove karo
+      setGrantEmailList((prev) => prev.filter((item) => item._id !== userId));
+    } catch (error) {
+      toast.error("Failed to revoke access!");
+    }
   };
 
   const handleDeleteNotifyEmail = async (index, emailId) => {
-  try {
-    // DELETE API URL
-    const url = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/notification-emails/${wemonitoringUserId}`;
+    try {
+      // DELETE API URL
+      const url = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/notification-emails/${wemonitoringUserId}`;
 
-    // API Call
-    const response = await axios.delete(url, {
-      data: {
-        email:emailId,  // your payload
-      },
-    });
+      // API Call
+      const response = await axios.delete(url, {
+        data: {
+          email: emailId, // your payload
+        },
+      });
 
-    // Success Toast
-    toast.success("Email deleted successfully!");
+      // Success Toast
+      toast.success("Email deleted successfully!");
 
-    // Update UI state
-    const updated = notificationEmailsList.filter((_, i) => i !== index);
-    setNotificationEmailsList(updated);
+      // Update UI state
+      const updated = notificationEmailsList.filter((_, i) => i !== index);
+      setNotificationEmailsList(updated);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete email!");
+    }
+  };
 
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to delete email!");
-  }
-};
+  const fetchGrantedUsers = async () => {
+    try {
+      const res = await axios.get(
+        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access/${wemonitoringUserId}`
+      );
 
+      setGrantEmailList(res.data); // API already returning array of users
+    } catch (err) {
+      toast.error("Failed to fetch granted users!");
+    }
+  };
 
-console.log(notificationEmailsList);
+  useEffect(() => {
+    fetchGrantedUsers();
+  }, []);
+
+  console.log(notificationEmailsList);
 
   return (
     <div className="min-h-screen bg-[#0b203a] text-white p-8">
@@ -247,9 +275,7 @@ console.log(notificationEmailsList);
 
             {/* Department */}
             <div>
-              <label className="text-sm text-gray-300">
-                Department
-              </label>
+              <label className="text-sm text-gray-300">Department</label>
               <input
                 type="text"
                 placeholder="Security, IT, etc."
@@ -277,31 +303,29 @@ console.log(notificationEmailsList);
           </h3>
 
           <div className="space-y-3">
-            {grantEmailList.map((item, index) => (
+            {grantEmailList.map((item) => (
               <div
-                key={index}
+                key={item._id}
                 className="bg-[#1e3a63] p-4 rounded-xl flex items-center justify-between"
               >
                 {/* Left — Avatar + User Info */}
                 <div className="flex items-center gap-4">
                   <div className="bg-pink-600 w-10 h-10 rounded-full flex items-center justify-center font-semibold">
-                    {item.charAt(0).toUpperCase()}
+                    {item?.fullName?.charAt(0)?.toUpperCase() || "U"}
                   </div>
 
                   <div>
-                    <p className="text-white font-medium">
-                      {item.split("@")[0]}
-                    </p>
-                    <p className="text-gray-300 text-sm">{item}</p>
+                    <p className="text-white font-medium">{item.fullName}</p>
+                    <p className="text-gray-300 text-sm">{item.email}</p>
                     <p className="text-gray-500 text-xs">
-                      Added {new Date().toLocaleDateString()}
+                      Added {new Date(item.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
 
                 {/* Delete */}
                 <button
-                  onClick={() => handleDeleteOrgEmail(index)}
+                  onClick={() => handleDeleteOrgEmail(item._id)}
                   className="text-red-400 hover:text-red-500"
                 >
                   <FiX size={20} />
@@ -309,7 +333,7 @@ console.log(notificationEmailsList);
               </div>
             ))}
 
-            {orgEmails.length === 0 && (
+            {grantEmailList.length === 0 && (
               <p className="text-gray-400 text-sm">No users added yet.</p>
             )}
           </div>
@@ -544,7 +568,7 @@ console.log(notificationEmailsList);
           </div>
         </section>
 
-        <SettingsPage/>
+        <SettingsPage />
       </div>
     </div>
   );

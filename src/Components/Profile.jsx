@@ -120,6 +120,11 @@ export default function SettingsPage() {
       return;
     }
 
+    if (newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters long.");
+      return;
+    }
+
     try {
       setUpdatingPassword(true);
 
