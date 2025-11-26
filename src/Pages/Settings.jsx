@@ -466,56 +466,7 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* --- Alert Settings --- */}
-        <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <FiBell className="text-pink-400" /> Alert Settings
-          </h2>
-          <p className="text-gray-400 text-sm mb-4">
-            Configure how you receive incident notifications
-          </p>
-
-          {/* Notification Channels */}
-          <div className="mb-6">
-            <h3 className="font-medium text-gray-200 mb-2">
-              Notification Channels
-            </h3>
-            <div className="bg-[#1e3a63] rounded-xl p-4 flex items-center justify-between">
-              <div>
-                <p className="font-medium flex items-center gap-2">
-                  <FiMail className="text-blue-400" /> Email Alerts
-                </p>
-                <p className="text-sm text-gray-400">
-                  Receive immediate email notifications for high-severity
-                  incidents.
-                </p>
-              </div>
-              <span className="bg-green-600 text-sm px-3 py-1 rounded-full">
-                Enabled
-              </span>
-            </div>
-          </div>
-
-          {/* Severity Filters */}
-          <div>
-            <h3 className="font-medium text-gray-200 mb-2">Severity Filters</h3>
-            <p className="text-gray-400 text-sm mb-3">
-              Choose which severity levels trigger alerts
-            </p>
-            <div className="flex gap-2">
-              <span className="bg-red-600 px-3 py-1 text-sm rounded-full">
-                High
-              </span>
-              <span className="bg-yellow-500 px-3 py-1 text-sm rounded-full text-black">
-                Medium
-              </span>
-              <span className="bg-blue-500 px-3 py-1 text-sm rounded-full">
-                Low
-              </span>
-            </div>
-          </div>
-        </section>
-
+        
         {/* --- Monitored Sources --- */}
         <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">

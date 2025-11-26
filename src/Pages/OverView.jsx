@@ -174,7 +174,7 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
     }
 
      if (!domainRegex.test(domainName)) {
-    toast.error("Invalid domain format! Example: example.com");
+    toast.error("Invalid Domain Format. Please Enter the Correct Domain!");
     setLoading(false);
     return;
   }
