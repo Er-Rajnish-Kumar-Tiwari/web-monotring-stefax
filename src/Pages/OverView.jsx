@@ -164,11 +164,20 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
     e.preventDefault();
     setLoading(true);
 
+     const domainRegex = /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,10}$/;
+
+
     if (!domainName) {
       toast.error("Please enter a domain name!");
       setLoading(false);
       return;
     }
+
+     if (!domainRegex.test(domainName)) {
+    toast.error("Invalid domain format! Example: example.com");
+    setLoading(false);
+    return;
+  }
 
     if (!frequency) {
       toast.error("Please select a monitoring frequency!");
@@ -206,7 +215,7 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
             `${breaches.length} breach(es) found! Please check the incidents page.`
           );
         } else {
-          toast.info(response.data.message);
+          toast.info(response.data.message || "No breaches found during the check.");
         }
       } else {
         // Normal monitoring mode with custom messages
@@ -230,20 +239,19 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
 
       setDomainName("");
       setFrequency("");
-} catch (error) {
-  console.error("Error starting monitoring:", error);
+    } catch (error) {
+      console.error("Error starting monitoring:", error);
 
-  const errMsg =
-    error?.response?.data?.message ||
-    error?.message ||
-    "Something went wrong";
+      const errMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
 
-  console.log("Error Message:", errMsg);
-  toast.error(errMsg); // Optional UI toast
-} finally {
-  setLoading(false);
-}
-
+      console.log("Error Message:", errMsg);
+      toast.error(errMsg); // Optional UI toast
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getButtonText = () => {
@@ -276,14 +284,16 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
           id="domain"
           value={domainName}
           onChange={(e) => {
-            // remove @ instantly
-            const cleaned = e.target.value.replace(/@/g, "");
+            // Remove spaces & @ instantly
+            const cleaned = e.target.value
+              .replace(/@/g, "")
+              .replace(/\s+/g, "");
             setDomainName(cleaned);
           }}
           className="w-full px-4 py-3 bg-gray-950/30 border border-blue-700 rounded-lg text-white placeholder-gray-500 focus:ring-pink-500 focus:border-pink-500 transition-colors"
-          placeholder="example.com"
+          placeholder="example.com" // correct format placeholder
           required
-          pattern="^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$"
+          pattern="^[a-zA-Z0-9-]+\.[a-zA-Z]{2,10}$" // one dot + valid extension
         />
       </div>
 
@@ -411,7 +421,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
               `${breaches.length} breach(es) found! Please check the incidents page.`
             );
           } else {
-            toast.info(res.data.message);
+            toast.info(res.data.message || "No breaches found during the check.");
           }
         } else {
           // ✅ Frequency-based success messages
@@ -466,7 +476,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
               `${breaches.length} breach(es) found! Please check the incidents page.`
             );
           } else {
-            toast.info(res.data.message);
+            toast.info(res.data.message  || "No breaches found during the check.");
           }
         } else {
           // ✅ Frequency-based success messages

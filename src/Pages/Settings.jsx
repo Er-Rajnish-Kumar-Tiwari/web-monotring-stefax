@@ -165,8 +165,8 @@ export default function Settings() {
 
   const handleDeleteOrgEmail = async (userId) => {
     try {
-      await axios.delete(
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/revoke-access/${wemonitoringUserId}`
+       const res=await axios.delete(
+        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/revoke-access/${userId}`
       );
 
       toast.success("Access revoked!");
@@ -174,7 +174,7 @@ export default function Settings() {
       // UI se remove karo
       setGrantEmailList((prev) => prev.filter((item) => item._id !== userId));
     } catch (error) {
-      toast.error("Failed to revoke access!");
+      toast.error(error.response?.data?.message || "Failed to revoke access!");
     }
   };
 
