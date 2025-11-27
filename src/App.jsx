@@ -15,6 +15,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import Profile from "./Components/Profile";
+import SuperAdmin from "./Pages/SuperAdmin";
 
 const App = () => {
   const userId = localStorage.getItem("webMonitoringuserId");
@@ -41,6 +42,7 @@ const App = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/web-dashboard" element={<Dashboards />} />
             <Route path="/profile" element={<Profile/>} />
+            <Route path="/super-admin" element={<SuperAdmin />} />
 
             {/* Signup tab ko hide karna after login */}
             <Route path="/signup" element={<Navigate to="/" />} />
