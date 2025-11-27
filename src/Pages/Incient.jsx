@@ -336,7 +336,9 @@ const IncidentManagement = () => {
           </div>
         ) : (
           <div className="overflow-x-auto border border-blue-800 rounded-xl">
-            <table className="w-full text-sm text-gray-300">
+            <table className="w-full text-sm text-gray-300 text-center">
+              {/* 👆 Entire table text center */}
+
               <thead className="bg-blue-900/40 text-gray-200 uppercase text-xs">
                 <tr>
                   <th className="px-6 py-3">Incident ID</th>
@@ -346,7 +348,7 @@ const IncidentManagement = () => {
                   <th className="px-2 py-3">Detected Date</th>
                   <th className="px-6 py-3">Status</th>
                   <th className="px-6 py-3">Severity</th>
-                  <th className="px-6 py-3 pl-30">Action</th>
+                  <th className="px-6 py-3">Action</th>
                 </tr>
               </thead>
 
@@ -355,11 +357,9 @@ const IncidentManagement = () => {
                   const allTargets = [
                     ...new Set(group.incidents.map((i) => i.targetValue)),
                   ].join(", ");
-
                   const allTypes = [
                     ...new Set(group.incidents.map((i) => i.targetType)),
                   ].join(", ");
-
                   const uniqueSources = [
                     ...new Set(
                       group.incidents.map(
@@ -391,7 +391,8 @@ const IncidentManagement = () => {
                       <td className="px-6 py-4">{group.incidentId}</td>
                       <td className="px-6 py-4">{capitalizeFirst(allTypes)}</td>
 
-                      <td className="px-6 py-4 flex mt-5 items-center gap-2">
+                      <td className="px-6 py-4 flex mt-2 items-center justify-center gap-2">
+                        {/* 👆 justify-center fix */}
                         {allTargets.includes("@") ? (
                           <EmailIcon className="h-4 w-4 text-pink-400" />
                         ) : (

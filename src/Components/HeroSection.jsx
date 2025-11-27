@@ -46,7 +46,7 @@ const HeroSection = () => {
         {/* Hero Text Section */}
         <div className="text-center mb-12">
           <h2
-            className="text-5xl font-bold mb-4"
+            className="text-5xl font-bold mb-4 leading-tight"
             style={{
               background: 'linear-gradient(to right, #e879f9, #a855f7)',
               WebkitBackgroundClip: 'text',
