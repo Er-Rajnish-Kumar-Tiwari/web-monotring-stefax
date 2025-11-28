@@ -222,6 +222,12 @@ const AuthPage = () => {
             required
           />
 
+          <div className="flex justify-end">
+            <p className="text-gray-300 text-sm underline cursor-pointer mr-2" onClick={()=>navigate("/forgot")}>
+              Forgot Password
+            </p>
+          </div>
+
           {/* Submit */}
           <button
             type="submit"

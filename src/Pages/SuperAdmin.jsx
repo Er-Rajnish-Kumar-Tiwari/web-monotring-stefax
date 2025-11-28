@@ -62,8 +62,8 @@ const SuperAdmin = () => {
                 <td className="p-3">{user.name}</td>
                 <td className="p-3">{user.email}</td>
                 <td className="p-3">{user.phone || "-"}</td>
-                <td className="p-3">{user.company || "-"}</td>
-                <td className="p-3">{user.lastLogin}</td>
+                <td className="p-3 pl-6">{user.company || "-"}</td>
+                <td className="p-3 pl-4">{user.lastLogin}</td>
                 <td className="text-center p-3">
                   <button className="text-blue-600 hover:text-blue-800">
                     <FiDownload size={20} />

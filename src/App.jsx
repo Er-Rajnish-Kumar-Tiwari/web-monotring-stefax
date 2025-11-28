@@ -16,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import Profile from "./Components/Profile";
 import SuperAdmin from "./Pages/SuperAdmin";
+import ResetFlow from "./Components/ForgotPassword";
 
 const App = () => {
   const userId = localStorage.getItem("webMonitoringuserId");
@@ -27,6 +28,9 @@ const App = () => {
       {userId && <HeroSection />}
 
       <Routes>
+
+         {/* Forgot Password Route (accessible for non-logged users) */}
+        {!userId && <Route path="/forgot" element={<ResetFlow />} />}
         {/* If no user → redirect all routes to /signup */}
         {!userId ? (
           <>
