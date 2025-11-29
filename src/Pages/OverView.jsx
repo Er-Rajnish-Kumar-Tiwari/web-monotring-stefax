@@ -122,10 +122,9 @@ const MonitoringFrequency = ({ selected, setSelected }) => {
           />
           <span
             className={`w-4 h-4 rounded-full border-2 transition-colors duration-200
-              ${
-                selected === option
-                  ? "border-pink-500 bg-pink-500"
-                  : "border-gray-500 bg-transparent"
+              ${selected === option
+                ? "border-pink-500 bg-pink-500"
+                : "border-gray-500 bg-transparent"
               }
             `}
           ></span>
@@ -164,7 +163,7 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
     e.preventDefault();
     setLoading(true);
 
-     const domainRegex = /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,10}$/;
+    const domainRegex = /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,10}$/;
 
 
     if (!domainName) {
@@ -173,11 +172,11 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
       return;
     }
 
-     if (!domainRegex.test(domainName)) {
-    toast.error("Invalid Domain Format. Please Enter the Correct Domain!");
-    setLoading(false);
-    return;
-  }
+    if (!domainRegex.test(domainName)) {
+      toast.error("Invalid Domain Format. Please Enter the Correct Domain!");
+      setLoading(false);
+      return;
+    }
 
     if (!frequency) {
       toast.error("Please select a monitoring frequency!");
@@ -198,7 +197,7 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
 
     try {
       const response = await axios.post(
-        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/domain",
+        "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/watch/domain",
         payload,
         {
           headers: { "Content-Type": "application/json" },
@@ -308,11 +307,10 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
-          loading
+        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${loading
             ? "bg-gray-700 cursor-not-allowed"
             : "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500"
-        }`}
+          }`}
       >
         {loading && (
           <svg
@@ -405,7 +403,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
         };
 
         const res = await axios.post(
-          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch",
+          "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/watch",
           body,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -463,7 +461,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
         formData.append("checkNow", checkNow);
 
         const res = await axios.post(
-          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
+          "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -476,7 +474,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
               `${breaches.length} breach(es) found! Please check the incidents page.`
             );
           } else {
-            toast.info(res.data.message  || "No breaches found during the check.");
+            toast.info(res.data.message || "No breaches found during the check.");
           }
         } else {
           // ✅ Frequency-based success messages
@@ -519,7 +517,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
   const handleTemplateDownload = async () => {
     try {
       const res = await axios.get(
-        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/template",
+        "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/watch/email/template",
         {
           responseType: "blob", // IMPORTANT
         }
@@ -571,22 +569,20 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
         <button
           type="button"
           onClick={() => setUploadMode("manual")}
-          className={`px-4 py-2 rounded-lg border ${
-            uploadMode === "manual"
+          className={`px-4 py-2 rounded-lg border ${uploadMode === "manual"
               ? "bg-pink-600 text-white border-pink-600"
               : "border-gray-600 text-gray-300 hover:bg-gray-700"
-          }`}
+            }`}
         >
           Manual Entry
         </button>
         <button
           type="button"
           onClick={() => setUploadMode("upload")}
-          className={`px-4 py-2 rounded-lg border ${
-            uploadMode === "upload"
+          className={`px-4 py-2 rounded-lg border ${uploadMode === "upload"
               ? "bg-pink-600 text-white border-pink-600"
               : "border-gray-600 text-gray-300 hover:bg-gray-700"
-          }`}
+            }`}
         >
           Upload by Excel/CSV
         </button>
@@ -645,11 +641,10 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
-          loading
+        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${loading
             ? "bg-gray-700 cursor-not-allowed"
             : "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500"
-        }`}
+          }`}
       >
         {loading && (
           <svg
@@ -687,7 +682,7 @@ const Overview = () => {
   const [emailsFornoti, setEmailsForNoti] = useState([]);
 
   const fetchUserProfile = async () => {
-    const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${webUserId}`;
+    const API = `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/${webUserId}`;
 
     const authToken = localStorage.getItem("webMonitoringToken");
 
@@ -732,10 +727,9 @@ const Overview = () => {
               <button
                 onClick={() => setActiveFormTab("domain")}
                 className={`flex-1 flex items-center justify-center py-3 text-sm font-medium transition-all duration-300 rounded-lg
-                  ${
-                    activeFormTab === "domain"
-                      ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl"
-                      : "text-gray-400 hover:text-white"
+                  ${activeFormTab === "domain"
+                    ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl"
+                    : "text-gray-400 hover:text-white"
                   }
                 `}
               >
@@ -746,10 +740,9 @@ const Overview = () => {
               <button
                 onClick={() => setActiveFormTab("email")}
                 className={`flex-1 flex items-center justify-center py-3 text-sm font-medium transition-all duration-300 rounded-lg
-                  ${
-                    activeFormTab === "email"
-                      ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl"
-                      : "text-gray-400 hover:text-white"
+                  ${activeFormTab === "email"
+                    ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl"
+                    : "text-gray-400 hover:text-white"
                   }
                 `}
               >

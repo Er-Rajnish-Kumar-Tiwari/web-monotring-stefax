@@ -50,7 +50,7 @@ export default function SettingsPage() {
       try {
         setLoadingProfile(true);
         const res = await axios.get(
-          `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${uId}`
+          `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/${uId}`
         );
         console.log("User Details:", res.data);
         setFullName(res.data?.fullName ?? "");
@@ -93,7 +93,7 @@ export default function SettingsPage() {
     try {
       setSavingProfile(true);
       await axios.put(
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${uId}`,
+        `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/${uId}`,
         payload
       );
       toast.success("Profile updated!");
@@ -129,7 +129,7 @@ export default function SettingsPage() {
       setUpdatingPassword(true);
 
       const res = await axios.put(
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/change-password/${uId}`,
+        `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/me/change-password/${uId}`,
         {
           currentPassword: oldPassword,
           newPassword: newPassword,
@@ -175,7 +175,7 @@ export default function SettingsPage() {
             <div>
               <h1 className="text-2xl font-semibold text-white">Profile</h1>
               <p className="text-sm text-gray-200">
-                Update your account profile information 
+                Update your account profile information
               </p>
             </div>
           </div>
@@ -187,22 +187,20 @@ export default function SettingsPage() {
           <div className="flex border-b mb-8">
             <button
               onClick={() => setActiveTab("profile")}
-              className={`py-3 px-6 -mb-px text-sm font-medium flex items-center gap-2 ${
-                activeTab === "profile"
+              className={`py-3 px-6 -mb-px text-sm font-medium flex items-center gap-2 ${activeTab === "profile"
                   ? "border-b-4 border-indigo-600 text-indigo-600"
                   : "text-gray-200 hover:text-gray-200"
-              }`}
+                }`}
             >
               <FaUser /> Profile
             </button>
 
             <button
               onClick={() => setActiveTab("security")}
-              className={`py-3 px-6 -mb-px text-sm font-medium flex items-center gap-2 ${
-                activeTab === "security"
+              className={`py-3 px-6 -mb-px text-sm font-medium flex items-center gap-2 ${activeTab === "security"
                   ? "border-b-4 border-indigo-600 text-indigo-600"
                   : "text-gray-200 hover:text-gray-200"
-              }`}
+                }`}
             >
               <FaLock /> Security
             </button>
@@ -256,9 +254,8 @@ export default function SettingsPage() {
               <div>
                 <button
                   type="submit"
-                  className={`w-full py-3 rounded-xl text-white font-medium transition-transform transform hover:scale-[1.01] ${
-                    savingProfile ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full py-3 rounded-xl text-white font-medium transition-transform transform hover:scale-[1.01] ${savingProfile ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                   style={{
                     background:
                       "linear-gradient(90deg,#2b2b78, #5d2ea6, #a451b5)",
@@ -353,9 +350,8 @@ export default function SettingsPage() {
               <div>
                 <button
                   type="submit"
-                  className={`w-full py-3 rounded-xl text-white font-medium transition-transform transform hover:scale-[1.01] ${
-                    updatingPassword ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full py-3 rounded-xl text-white font-medium transition-transform transform hover:scale-[1.01] ${updatingPassword ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                   style={{
                     background:
                       "linear-gradient(90deg,#2b2b78, #5d2ea6, #a451b5)",
