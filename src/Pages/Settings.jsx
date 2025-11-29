@@ -525,7 +525,7 @@ export default function Settings() {
         {/* --- Need Help / Support Section --- */}
 <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md mt-6">
   <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-    <FiHelpCircle className="text-pink-400" /> Need Help?
+    <FiHelpCircle className="text-pink-400" /> Need help contact us on
   </h2>
 
   <div className="bg-[#1e3a63] p-4 rounded-xl">
