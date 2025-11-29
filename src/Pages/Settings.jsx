@@ -9,6 +9,7 @@ import {
   FiMessageSquare,
   FiShoppingBag,
   FiPlus,
+  FiHelpCircle,
   FiX,
 } from "react-icons/fi";
 import { toast } from "react-toastify";
@@ -520,6 +521,20 @@ export default function Settings() {
         </section>
 
         <SettingsPage />
+
+        {/* --- Need Help / Support Section --- */}
+<section className="bg-[#122b4d] rounded-2xl p-6 shadow-md mt-6">
+  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+    <FiHelpCircle className="text-pink-400" /> Need Help?
+  </h2>
+
+  <div className="bg-[#1e3a63] p-4 rounded-xl">
+    <p className="text-gray-300 font-semibold text-lg">
+      Support@kevlardefence.com
+    </p>
+  </div>
+</section>
+        
       </div>
     </div>
   );
