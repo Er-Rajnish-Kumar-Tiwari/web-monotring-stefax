@@ -20,7 +20,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-  const webUserId=localStorage.getItem("webMonitoringuserId");
+const webUserId = localStorage.getItem("webMonitoringuserId");
 
 const Dashboards = () => {
   const [data, setData] = useState(null);
@@ -32,7 +32,7 @@ const Dashboards = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/dashboard?userId=${webUserId}`
+          `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/dashboard?userId=${webUserId}`
         );
         setData(res.data);
       } catch (error) {
@@ -100,7 +100,7 @@ const Dashboards = () => {
           </p>
         </div>
 
-        
+
       </div>
 
       {/* Charts Section */}
@@ -163,7 +163,7 @@ const Dashboards = () => {
       </div>
 
       {/* Bottom Card */}
-     
+
     </div>
   );
 };

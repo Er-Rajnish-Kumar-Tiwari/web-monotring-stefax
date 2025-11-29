@@ -24,7 +24,7 @@ export default function Settings() {
   const [notificationEmailsList, setNotificationEmailsList] = useState([]);
 
   const fetchUserProfile = async () => {
-    const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
+    const API = `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
 
     const authToken = localStorage.getItem("webMonitoringToken");
 
@@ -67,8 +67,8 @@ export default function Settings() {
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifyEmails, setNotifyEmails] = useState([]);
 
-  const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
-  const API2 = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access/${wemonitoringUserId}`;
+  const API = `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/${wemonitoringUserId}`;
+  const API2 = `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access/${wemonitoringUserId}`;
 
   //  Yeh token apne login API se receive hota hai
   const authToken = localStorage.getItem("webMonitoringToken");
@@ -111,8 +111,8 @@ export default function Settings() {
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Something went wrong"
+        err.response?.data?.error ||
+        "Something went wrong"
       );
     }
   };
@@ -154,8 +154,8 @@ export default function Settings() {
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Something went wrong"
+        err.response?.data?.error ||
+        "Something went wrong"
       );
     }
   };
@@ -166,8 +166,8 @@ export default function Settings() {
 
   const handleDeleteOrgEmail = async (userId) => {
     try {
-       const res=await axios.delete(
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/revoke-access/${userId}`
+      const res = await axios.delete(
+        `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/admin/revoke-access/${userId}`
       );
 
       toast.success("Access revoked!");
@@ -182,7 +182,7 @@ export default function Settings() {
   const handleDeleteNotifyEmail = async (index, emailId) => {
     try {
       // DELETE API URL
-      const url = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/me/notification-emails/${wemonitoringUserId}`;
+      const url = `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/me/notification-emails/${wemonitoringUserId}`;
 
       // API Call
       const response = await axios.delete(url, {
@@ -206,7 +206,7 @@ export default function Settings() {
   const fetchGrantedUsers = async () => {
     try {
       const res = await axios.get(
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access/${wemonitoringUserId}`
+        `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/admin/grant-access/${wemonitoringUserId}`
       );
 
       setGrantEmailList(res.data); // API already returning array of users
@@ -467,7 +467,7 @@ export default function Settings() {
           </div>
         </section>
 
-        
+
         {/* --- Monitored Sources --- */}
         <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -523,18 +523,18 @@ export default function Settings() {
         <SettingsPage />
 
         {/* --- Need Help / Support Section --- */}
-<section className="bg-[#122b4d] rounded-2xl p-6 shadow-md mt-6">
-  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-    <FiHelpCircle className="text-pink-400" /> Need help contact us on
-  </h2>
+        <section className="bg-[#122b4d] rounded-2xl p-6 shadow-md mt-6">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <FiHelpCircle className="text-pink-400" /> Need help contact us on
+          </h2>
 
-  <div className="bg-[#1e3a63] p-4 rounded-xl">
-    <p className="text-gray-300 font-semibold text-lg">
-      Support@kevlardefence.com
-    </p>
-  </div>
-</section>
-        
+          <div className="bg-[#1e3a63] p-4 rounded-xl">
+            <p className="text-gray-300 font-semibold text-lg">
+              Support@kevlardefence.com
+            </p>
+          </div>
+        </section>
+
       </div>
     </div>
   );

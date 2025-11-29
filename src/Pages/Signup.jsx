@@ -29,69 +29,69 @@ const AuthPage = () => {
   const navigate = useNavigate();
 
   const SIGNUP_URL =
-    "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/signup";
+    "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/signup";
 
   const LOGIN_URL =
-    "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/login";
+    "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/login";
 
-  const VERIFY_OTP_URL = `http://195.35.21.108:7001/auth/api/v1/otp/verify?email=${encodeURIComponent(
+  const VERIFY_OTP_URL = `http://13.50.233.20:7001/auth/api/v1/otp/verify?email=${encodeURIComponent(
     email
   )}&otp=${otp}`;
   // ----------------------------------------
   // SUBMIT FUNCTION (SignIn / SignUp)
   // ----------------------------------------
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    let response;
+    try {
+      let response;
 
-    if (isSignIn) {
+      if (isSignIn) {
+        // -----------------------------
+        // LOGIN WITHOUT OTP
+        // -----------------------------
+        response = await axios.post(LOGIN_URL, { email, password });
+
+        toast.success("Login Successful!");
+
+        localStorage.setItem("webMonitoringToken", response.data.token);
+        localStorage.setItem("webMonitoringuserId", response.data.user);
+
+        // Direct Navigate to Dashboard (NO OTP)
+        navigate("/web-dashboard");
+        window.location.reload();
+        return;
+      }
+
       // -----------------------------
-      // LOGIN WITHOUT OTP
+      // SIGNUP → OTP REQUIRED
       // -----------------------------
-      response = await axios.post(LOGIN_URL, { email, password });
+      response = await axios.post(SIGNUP_URL, {
+        fullName,
+        email,
+        password,
+        companyName,
+        country,
+        contactno,
+        isTermsAccepted: true,
+      });
 
-      toast.success("Login Successful!");
+      toast.success("OTP sent to your email!");
 
-      localStorage.setItem("webMonitoringToken", response.data.token);
+      localStorage.setItem("webMonitoringToken", response.data.passcode);
       localStorage.setItem("webMonitoringuserId", response.data.user);
+      localStorage.setItem("webMonitoringTempUser", response.data.user);
 
-      // Direct Navigate to Dashboard (NO OTP)
-      navigate("/web-dashboard");
-      window.location.reload();
-      return;
+      // 👉 OPEN OTP BOX ONLY FOR SIGNUP
+      setShowOtpPopup(true);
+
+    } catch (error) {
+      alert(error?.response?.data?.message || "Something went wrong!");
     }
 
-    // -----------------------------
-    // SIGNUP → OTP REQUIRED
-    // -----------------------------
-    response = await axios.post(SIGNUP_URL, {
-      fullName,
-      email,
-      password,
-      companyName,
-      country,
-      contactno,
-      isTermsAccepted: true,
-    });
-
-    toast.success("OTP sent to your email!");
-
-    localStorage.setItem("webMonitoringToken", response.data.passcode);
-    localStorage.setItem("webMonitoringuserId", response.data.user);
-    localStorage.setItem("webMonitoringTempUser", response.data.user);
-
-    // 👉 OPEN OTP BOX ONLY FOR SIGNUP
-    setShowOtpPopup(true);
-
-  } catch (error) {
-    alert(error?.response?.data?.message || "Something went wrong!");
-  }
-
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
 
   // ----------------------------------------
@@ -148,18 +148,16 @@ const AuthPage = () => {
         {/* Tabs */}
         <div className="flex bg-[#003a5c] rounded-lg overflow-hidden mb-6">
           <button
-            className={`w-1/2 py-2 font-semibold ${
-              isSignIn ? "bg-[#004b74]" : "bg-transparent"
-            }`}
+            className={`w-1/2 py-2 font-semibold ${isSignIn ? "bg-[#004b74]" : "bg-transparent"
+              }`}
             onClick={() => setIsSignIn(true)}
           >
             Sign In
           </button>
 
           <button
-            className={`w-1/2 py-2 font-semibold ${
-              !isSignIn ? "bg-[#004b74]" : "bg-transparent"
-            }`}
+            className={`w-1/2 py-2 font-semibold ${!isSignIn ? "bg-[#004b74]" : "bg-transparent"
+              }`}
             onClick={() => setIsSignIn(false)}
           >
             Sign Up
@@ -242,7 +240,7 @@ const AuthPage = () => {
           />
 
           <div className="flex justify-end">
-            <p className="text-gray-300 text-sm underline cursor-pointer mr-2" onClick={()=>navigate("/forgot")}>
+            <p className="text-gray-300 text-sm underline cursor-pointer mr-2" onClick={() => navigate("/forgot")}>
               Forgot Password
             </p>
           </div>
