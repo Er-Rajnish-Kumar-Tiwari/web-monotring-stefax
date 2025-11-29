@@ -41,39 +41,58 @@ const AuthPage = () => {
   // SUBMIT FUNCTION (SignIn / SignUp)
   // ----------------------------------------
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      let response;
-      if (isSignIn) {
-        response = await axios.post(LOGIN_URL, { email, password });
-      } else {
-        response = await axios.post(SIGNUP_URL, {
-          fullName,
-          email,
-          password,
-          companyName,
-          country,
-          contactno,
-          isTermsAccepted: true,
-        });
-      }
+  try {
+    let response;
 
-      toast.success("OTP sent to your email!");
+    if (isSignIn) {
+      // -----------------------------
+      // LOGIN WITHOUT OTP
+      // -----------------------------
+      response = await axios.post(LOGIN_URL, { email, password });
 
-      localStorage.setItem("webMonitoringToken", response.data.passcode);
+      toast.success("Login Successful!");
+
+      localStorage.setItem("webMonitoringToken", response.data.token);
       localStorage.setItem("webMonitoringuserId", response.data.user);
-      localStorage.setItem("webMonitoringTempUser", response.data.user);
 
-      // 👉 OPEN OTP BOX
-      setShowOtpPopup(true);
-    } catch (error) {
-      alert(error?.response?.data?.message || "Something went wrong!");
+      // Direct Navigate to Dashboard (NO OTP)
+      navigate("/web-dashboard");
+      window.location.reload();
+      return;
     }
 
-    setLoading(false);
-  };
+    // -----------------------------
+    // SIGNUP → OTP REQUIRED
+    // -----------------------------
+    response = await axios.post(SIGNUP_URL, {
+      fullName,
+      email,
+      password,
+      companyName,
+      country,
+      contactno,
+      isTermsAccepted: true,
+    });
+
+    toast.success("OTP sent to your email!");
+
+    localStorage.setItem("webMonitoringToken", response.data.passcode);
+    localStorage.setItem("webMonitoringuserId", response.data.user);
+    localStorage.setItem("webMonitoringTempUser", response.data.user);
+
+    // 👉 OPEN OTP BOX ONLY FOR SIGNUP
+    setShowOtpPopup(true);
+
+  } catch (error) {
+    alert(error?.response?.data?.message || "Something went wrong!");
+  }
+
+  setLoading(false);
+};
+
 
   // ----------------------------------------
   // OTP VERIFY FUNCTION
