@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 const webUserId = localStorage.getItem("webMonitoringuserId");
+  const BASEURL = import.meta.env.VITE_BASE_URL;
 
 // --- Inline SVG Icons (Reliable replacements for react-icons) ---
 
@@ -198,7 +199,7 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
 
     try {
       const response = await axios.post(
-        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/domain",
+        `${BASEURL}/auth/api/v1/dark-web-monitoring/watch/domain`,
         payload,
         {
           headers: { "Content-Type": "application/json" },
@@ -405,7 +406,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
         };
 
         const res = await axios.post(
-          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch",
+          `${BASEURL}/auth/api/v1/dark-web-monitoring/watch`,
           body,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -463,7 +464,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
         formData.append("checkNow", checkNow);
 
         const res = await axios.post(
-          "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
+          `${BASEURL}/auth/api/v1/dark-web-monitoring/watch/email/upload`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -519,7 +520,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
   const handleTemplateDownload = async () => {
     try {
       const res = await axios.get(
-        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/watch/email/template",
+        `${BASEURL}/auth/api/v1/dark-web-monitoring/watch/email/template`,
         {
           responseType: "blob", // IMPORTANT
         }
@@ -687,7 +688,7 @@ const Overview = () => {
   const [emailsFornoti, setEmailsForNoti] = useState([]);
 
   const fetchUserProfile = async () => {
-    const API = `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/${webUserId}`;
+    const API = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/${webUserId}`;
 
     const authToken = localStorage.getItem("webMonitoringToken");
 

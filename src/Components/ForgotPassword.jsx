@@ -14,11 +14,12 @@ const ResetFlow = () => {
   const [otp, setOtp] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
+  const BASEURL = import.meta.env.VITE_BASE_URL;
 
   const navigate = useNavigate();
 
   const BASE_URL =
-    "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users";
+    `${BASEURL}/auth/api/v1/dark-web-monitoring-users`;
 
   // -----------------------------------------
   // STEP 1 - SEND OTP

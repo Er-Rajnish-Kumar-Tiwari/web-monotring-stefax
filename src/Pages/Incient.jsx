@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 const userId = localStorage.getItem("webMonitoringuserId");
+  const BASEURL = import.meta.env.VITE_BASE_URL;
 
 // --- SVG Icon ---
 const DomainIcon = (props) => (
@@ -201,7 +202,7 @@ const IncidentManagement = () => {
     const fetchIncidents = async () => {
       try {
         const res = await axios.get(
-          `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/incidents?userId=${userId}`
+          `${BASEURL}/auth/api/v1/dark-web-monitoring/incidents?userId=${userId}`
         );
 
         console.log(res);
@@ -238,7 +239,7 @@ const IncidentManagement = () => {
       const payload = { targetValue, targetType };
 
       await axios.post(
-        "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring/incidents/resolve-by-target",
+        `${BASEURL}/auth/api/v1/dark-web-monitoring/incidents/resolve-by-target`,
         payload
       );
 

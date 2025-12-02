@@ -5,6 +5,8 @@ import { FaBuilding } from "react-icons/fa";
 
 const SuperAdmin = () => {
   const userId = localStorage.getItem("webMonitoringuserId");
+  
+  const BASEURL = import.meta.env.VITE_BASE_URL;
 
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -20,7 +22,7 @@ const SuperAdmin = () => {
   const fetchStats = async () => {
     try {
       const res = await axios.get(
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/super-admin/dashboard`
+        `${BASEURL}/auth/api/v1/dark-web-monitoring-users/super-admin/dashboard`
       );
       setStats(res.data);
     } catch (err) {
@@ -34,7 +36,7 @@ const SuperAdmin = () => {
   const fetchUsers = async () => {
     try {
       const res = await axios.get(
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/super-admin/users?userId=${userId}`
+        `${BASEURL}/auth/api/v1/dark-web-monitoring-users/super-admin/users?userId=${userId}`
       );
       setUsers(res.data.data);
     } catch (err) {
@@ -48,7 +50,7 @@ const SuperAdmin = () => {
   const downloadExcel = async () => {
     try {
       const response = await axios.get(
-        `http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/super-admin/export/users?userId=${userId}`,
+        `${BASEURL}/auth/api/v1/dark-web-monitoring-users/super-admin/export/users?userId=${userId}`,
         {
           responseType: "blob",
         }

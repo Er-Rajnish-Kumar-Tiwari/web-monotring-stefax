@@ -25,16 +25,17 @@ const AuthPage = () => {
   // OTP popup state
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [otp, setOtp] = useState("");
+  const BASEURL = import.meta.env.VITE_BASE_URL;
 
   const navigate = useNavigate();
 
   const SIGNUP_URL =
-    "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/signup";
+    `${BASEURL}/auth/api/v1/dark-web-monitoring-users/signup`;
 
   const LOGIN_URL =
-    "http://195.35.21.108:7001/auth/api/v1/dark-web-monitoring-users/login";
+    `${BASEURL}/auth/api/v1/dark-web-monitoring-users/login`;
 
-  const VERIFY_OTP_URL = `http://195.35.21.108:7001/auth/api/v1/otp/verify?email=${encodeURIComponent(
+  const VERIFY_OTP_URL = `${BASEURL}/auth/api/v1/otp/verify?email=${encodeURIComponent(
     email
   )}&otp=${otp}`;
   // ----------------------------------------
