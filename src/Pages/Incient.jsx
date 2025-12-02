@@ -392,7 +392,7 @@ const IncidentManagement = () => {
                       <td className="px-6 py-4">{group.incidentId}</td>
                       <td className="px-6 py-4">{capitalizeFirst(allTypes)}</td>
 
-                      <td className="px-6 py-4 flex mt-2 items-center justify-center gap-2">
+                      <td className="px-6 py-4 flex items-center justify-center gap-2">
                         {/* 👆 justify-center fix */}
                         {allTargets.includes("@") ? (
                           <EmailIcon className="h-4 w-4 text-pink-400" />
