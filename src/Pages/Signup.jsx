@@ -29,71 +29,66 @@ const AuthPage = () => {
 
   const navigate = useNavigate();
 
-  const SIGNUP_URL =
-    `${BASEURL}/auth/api/v1/dark-web-monitoring-users/signup`;
+  const SIGNUP_URL = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/signup`;
 
-  const LOGIN_URL =
-    `${BASEURL}/auth/api/v1/dark-web-monitoring-users/login`;
+  const LOGIN_URL = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/login`;
 
-  const VERIFY_OTP_URL = `${BASEURL}/auth/api/v1/otp/verify?email=${encodeURIComponent(
-    email
-  )}&otp=${otp}`;
+  const VERIFY_OTP_URL = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/verify-otp`;
+
   // ----------------------------------------
   // SUBMIT FUNCTION (SignIn / SignUp)
   // ----------------------------------------
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    let response;
+    try {
+      let response;
 
-    if (isSignIn) {
+      if (isSignIn) {
+        // -----------------------------
+        // LOGIN WITHOUT OTP
+        // -----------------------------
+        response = await axios.post(LOGIN_URL, { email, password });
+
+        toast.success("Login Successful!");
+
+        localStorage.setItem("webMonitoringToken", response.data.token);
+        localStorage.setItem("webMonitoringuserId", response.data.user);
+
+        // Direct Navigate to Dashboard (NO OTP)
+        navigate("/web-dashboard");
+        window.location.reload();
+        return;
+      }
+
       // -----------------------------
-      // LOGIN WITHOUT OTP
+      // SIGNUP → OTP REQUIRED
       // -----------------------------
-      response = await axios.post(LOGIN_URL, { email, password });
+      response = await axios.post(SIGNUP_URL, {
+        fullName,
+        email,
+        password,
+        companyName,
+        country,
+        contactno,
+        isTermsAccepted: true,
+      });
 
-      toast.success("Login Successful!");
+      toast.success("OTP sent to your email!");
 
-      localStorage.setItem("webMonitoringToken", response.data.token);
+      localStorage.setItem("webMonitoringToken", response.data.passcode);
       localStorage.setItem("webMonitoringuserId", response.data.user);
+      localStorage.setItem("webMonitoringTempUser", response.data.user);
 
-      // Direct Navigate to Dashboard (NO OTP)
-      navigate("/web-dashboard");
-      window.location.reload();
-      return;
+      // 👉 OPEN OTP BOX ONLY FOR SIGNUP
+      setShowOtpPopup(true);
+    } catch (error) {
+      alert(error?.response?.data?.message || "Something went wrong!");
     }
 
-    // -----------------------------
-    // SIGNUP → OTP REQUIRED
-    // -----------------------------
-    response = await axios.post(SIGNUP_URL, {
-      fullName,
-      email,
-      password,
-      companyName,
-      country,
-      contactno,
-      isTermsAccepted: true,
-    });
-
-    toast.success("OTP sent to your email!");
-
-    localStorage.setItem("webMonitoringToken", response.data.passcode);
-    localStorage.setItem("webMonitoringuserId", response.data.user);
-    localStorage.setItem("webMonitoringTempUser", response.data.user);
-
-    // 👉 OPEN OTP BOX ONLY FOR SIGNUP
-    setShowOtpPopup(true);
-
-  } catch (error) {
-    alert(error?.response?.data?.message || "Something went wrong!");
-  }
-
-  setLoading(false);
-};
-
+    setLoading(false);
+  };
 
   // ----------------------------------------
   // OTP VERIFY FUNCTION
@@ -105,22 +100,16 @@ const AuthPage = () => {
     }
 
     try {
-      const userId = localStorage.getItem("webMonitoringTempUser");
-
       const response = await axios.post(VERIFY_OTP_URL, {
-        user: userId,
+        email: email, // from state
         otp: otp,
       });
 
       toast.success("Email Verified Successfully!");
 
-      // ✅ OTP popup close
       setShowOtpPopup(false);
-
-      // ✅ Success popup open
       setShowSuccessPopup(true);
 
-      // ⏳ 2 sec delay → redirect
       setTimeout(() => {
         navigate("/web-dashboard");
         window.location.reload();
@@ -243,7 +232,10 @@ const AuthPage = () => {
           />
 
           <div className="flex justify-end">
-            <p className="text-gray-300 text-sm underline cursor-pointer mr-2" onClick={()=>navigate("/forgot")}>
+            <p
+              className="text-gray-300 text-sm underline cursor-pointer mr-2"
+              onClick={() => navigate("/forgot")}
+            >
               Forgot Password
             </p>
           </div>
