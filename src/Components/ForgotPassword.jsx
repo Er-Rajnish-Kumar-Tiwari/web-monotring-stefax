@@ -14,69 +14,64 @@ const ResetFlow = () => {
   const [otp, setOtp] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const BASEURL = import.meta.env.VITE_BASE_URL;
 
+  const [loadingSend, setLoadingSend] = useState(false);
+  const [loadingVerify, setLoadingVerify] = useState(false);
+  const [loadingReset, setLoadingReset] = useState(false);
+  const [loadingResend, setLoadingResend] = useState(false);
+
+  const BASEURL = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
 
-  const BASE_URL =
-    `${BASEURL}/auth/api/v1/dark-web-monitoring-users`;
+  const BASE_URL = `${BASEURL}/auth/api/v1/dark-web-monitoring-users`;
 
-  // -----------------------------------------
-  // STEP 1 - SEND OTP
-  // -----------------------------------------
+  // ----------------------
+  // SEND OTP
+  // ----------------------
   const handleSendOtp = async () => {
-    if (!email) {
-      toast.error("Please enter an email!");
-      return;
-    }
+    if (!email) return toast.error("Please enter an email!");
 
+    setLoadingSend(true);
     try {
-      const res = await axios.post(`${BASE_URL}/forgot-password`, {
-        email,
-      });
-
+      const res = await axios.post(`${BASE_URL}/forgot-password`, { email });
       toast.success(res.data.message || "OTP sent successfully!");
       setStep(2);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to send OTP");
     }
+    setLoadingSend(false);
   };
 
-  // -----------------------------------------
-  // STEP 2 - VERIFY OTP
-  // -----------------------------------------
+  // ----------------------
+  // VERIFY OTP
+  // ----------------------
   const handleVerifyOtp = async () => {
     if (otp.length !== 6) {
-      toast.error("Enter valid 6 digit OTP!");
-      return;
+      return toast.error("Enter valid 6 digit OTP!");
     }
 
+    setLoadingVerify(true);
     try {
-      const res = await axios.post(`${BASE_URL}/verify-otp`, {
-        email,
-        otp,
-      });
-
+      const res = await axios.post(`${BASE_URL}/verify-otp`, { email, otp });
       toast.success(res.data.message || "OTP verified!");
       setStep(3);
     } catch (err) {
       toast.error(err.response?.data?.message || "Invalid OTP");
     }
+    setLoadingVerify(false);
   };
 
-  // -----------------------------------------
-  // STEP 3 - RESET PASSWORD
-  // -----------------------------------------
+  // ----------------------
+  // RESET PASSWORD
+  // ----------------------
   const handleResetPassword = async () => {
-    if (!newPass || !confirmPass) {
-      toast.error("Please fill all fields!");
-      return;
-    }
-    if (newPass !== confirmPass) {
-      toast.error("Passwords do not match!");
-      return;
-    }
+    if (!newPass || !confirmPass)
+      return toast.error("Please fill all fields!");
 
+    if (newPass !== confirmPass)
+      return toast.error("Passwords do not match!");
+
+    setLoadingReset(true);
     try {
       const res = await axios.post(`${BASE_URL}/reset-password`, {
         email,
@@ -86,29 +81,27 @@ const ResetFlow = () => {
 
       toast.success(res.data.message || "Password reset successfully!");
 
-      setTimeout(() => {
-        navigate("/signup");
-      }, 1500);
+      setTimeout(() => navigate("/signup"), 1500);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to reset password");
     }
+    setLoadingReset(false);
   };
 
+  // ----------------------
+  // RESEND OTP
+  // ----------------------
   const handleResendOtp = async () => {
-    if (!email) {
-      toast.error("Email missing!");
-      return;
-    }
+    if (!email) return toast.error("Email missing!");
 
+    setLoadingResend(true);
     try {
-      const res = await axios.post(`${BASE_URL}/forgot-password`, {
-        email,
-      });
-
+      const res = await axios.post(`${BASE_URL}/forgot-password`, { email });
       toast.success(res.data.message || "OTP resent successfully!");
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to resend OTP");
     }
+    setLoadingResend(false);
   };
 
   return (
@@ -160,9 +153,10 @@ const ResetFlow = () => {
 
             <button
               onClick={handleSendOtp}
-              className="w-full bg-pink-600 hover:bg-pink-700 transition text-white py-3 rounded-lg font-semibold"
+              disabled={loadingSend}
+              className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-pink-400 transition text-white py-3 rounded-lg font-semibold"
             >
-              Send OTP
+              {loadingSend ? "Sending..." : "Send OTP"}
             </button>
           </>
         )}
@@ -185,16 +179,17 @@ const ResetFlow = () => {
 
             <button
               onClick={handleVerifyOtp}
-              className="w-full bg-pink-600 hover:bg-pink-700 transition text-white py-3 rounded-lg font-semibold"
+              disabled={loadingVerify}
+              className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-pink-400 transition text-white py-3 rounded-lg font-semibold"
             >
-              Verify OTP
+              {loadingVerify ? "Verifying..." : "Verify OTP"}
             </button>
 
             <p
               className="text-gray-300 text-center mt-3 cursor-pointer"
               onClick={handleResendOtp}
             >
-              Resend OTP
+              {loadingResend ? "Resending..." : "Resend OTP"}
             </p>
           </>
         )}
@@ -230,9 +225,10 @@ const ResetFlow = () => {
 
             <button
               onClick={handleResetPassword}
-              className="w-full bg-pink-600 hover:bg-pink-700 transition text-white py-3 rounded-lg font-semibold"
+              disabled={loadingReset}
+              className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-pink-400 transition text-white py-3 rounded-lg font-semibold"
             >
-              Reset Password
+              {loadingReset ? "Resetting..." : "Reset Password"}
             </button>
           </>
         )}
