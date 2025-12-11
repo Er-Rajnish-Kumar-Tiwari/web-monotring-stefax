@@ -4,7 +4,8 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../Pages/bg-new1.jpg";
 import logo from "../Pages/logo.png";
-import PhoneInput from "react-phone-input-2";
+import { PhoneInput } from "react-international-phone";
+import "react-international-phone/style.css";
 
 const AuthPage = () => {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -193,18 +194,12 @@ const AuthPage = () => {
               {/* Contact */}
               <div className="bg-[#003a5c] rounded px-2 py-1">
                 <PhoneInput
-                  country={"in"}
+                  defaultCountry="in"
                   value={contactno}
                   onChange={(phone) => setContactno(phone)}
-                  inputStyle={{
-                    width: "100%",
-                    background: "#003a5c",
-                    border: "none",
-                    color: "white",
-                  }}
-                  buttonStyle={{
-                    background: "#002b46",
-                    border: "none",
+                  inputClassName="w-full !bg-[#003a5c] !border-none !text-white"
+                  countrySelectorStyleProps={{
+                    buttonClassName: "!bg-[#002b46] !border-none !text-white bg-[#003a5c]",
                   }}
                 />
               </div>
