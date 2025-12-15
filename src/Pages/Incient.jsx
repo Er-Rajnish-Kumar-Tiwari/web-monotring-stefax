@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 const userId = localStorage.getItem("webMonitoringuserId");
-  const BASEURL = import.meta.env.VITE_BASE_URL;
+const BASEURL = import.meta.env.VITE_BASE_URL;
 
 // --- SVG Icon ---
 const DomainIcon = (props) => (
@@ -392,15 +392,15 @@ const IncidentManagement = () => {
                       <td className="px-6 py-4">{group.incidentId}</td>
                       <td className="px-6 py-4">{capitalizeFirst(allTypes)}</td>
 
-                      <td className="px-6 py-4 flex items-center justify-center gap-2">
-                        {/* 👆 justify-center fix */}
-                        {allTargets.includes("@") ? (
-                          <EmailIcon className="h-4 w-4 text-pink-400" />
-                        ) : (
-                          <DomainIcon className="h-4 w-4 text-pink-400" />
-                        )}
-
-                        {capitalizeFirst(allTargets)}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-2 h-full">
+                          {allTargets.includes("@") ? (
+                            <EmailIcon className="h-4 w-4 text-pink-400" />
+                          ) : (
+                            <DomainIcon className="h-4 w-4 text-pink-400" />
+                          )}
+                          {capitalizeFirst(allTargets)}
+                        </div>
                       </td>
 
                       <td className="px-6 py-4">{allSources}</td>
