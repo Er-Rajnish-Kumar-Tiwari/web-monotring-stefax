@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import bgImage from "../Pages/bg-new1.jpg";
 import logo from "../Pages/logo.png";
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
 
 const AuthPage = () => {
-  const [isSignIn, setIsSignIn] = useState(true);
+  const [isSignIn, setIsSignIn] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   // Shared inputs
@@ -27,6 +27,22 @@ const AuthPage = () => {
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [otp, setOtp] = useState("");
   const BASEURL = import.meta.env.VITE_BASE_URL;
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    const fullNameParam = searchParams.get("fullName");
+    const companyParam = searchParams.get("companyName");
+    const countryParam = searchParams.get("country");
+
+    if (emailParam) {
+      setIsSignIn(false); // force signup
+      setEmail(emailParam);
+    }
+    if (fullNameParam) setFullName(fullNameParam);
+    if (companyParam) setCompanyName(companyParam);
+    if (countryParam) setCountry(countryParam);
+  }, []);
 
   const navigate = useNavigate();
 
@@ -167,6 +183,7 @@ const AuthPage = () => {
                 placeholder="Full Name"
                 className="w-full px-4 py-2 rounded bg-[#003a5c]"
                 value={fullName}
+                disabled={!isSignIn}
                 onChange={(e) => setFullName(e.target.value)}
                 required
               />
@@ -177,6 +194,7 @@ const AuthPage = () => {
                 placeholder="Company Name"
                 className="w-full px-4 py-2 rounded bg-[#003a5c]"
                 value={companyName}
+                disabled={!isSignIn}
                 onChange={(e) => setCompanyName(e.target.value)}
                 required
               />
@@ -187,6 +205,7 @@ const AuthPage = () => {
                 placeholder="Country"
                 className="w-full px-4 py-2 rounded bg-[#003a5c]"
                 value={country}
+                disabled={!isSignIn}
                 onChange={(e) => setCountry(e.target.value)}
                 required
               />
@@ -199,7 +218,8 @@ const AuthPage = () => {
                   onChange={(phone) => setContactno(phone)}
                   inputClassName="w-full !bg-[#003a5c] !border-none !text-white"
                   countrySelectorStyleProps={{
-                    buttonClassName: "!bg-[#002b46] !border-none !text-white bg-[#003a5c]",
+                    buttonClassName:
+                      "!bg-[#002b46] !border-none !text-white bg-[#003a5c]",
                   }}
                 />
               </div>
@@ -212,6 +232,7 @@ const AuthPage = () => {
             placeholder="Email"
             className="w-full px-4 py-2 rounded bg-[#003a5c]"
             value={email}
+            disabled={!isSignIn}
             onChange={(e) => setEmail(e.target.value)}
             required
           />

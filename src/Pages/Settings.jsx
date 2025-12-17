@@ -77,11 +77,20 @@ export default function Settings() {
   const [grantName, setGrantName] = useState("");
   const [grantDepartment, setGrantDepartment] = useState("");
   const [grantEmailList, setGrantEmailList] = useState([]);
+  const [isAdding, setIsAdding] = useState(false);
+
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
 
   // =================== 1️⃣ ORG EMAIL API CALL ===================
   const handleAddOrgEmail = async () => {
     if (!grantEmail || !grantName || !grantDepartment)
       return toast.error("Please fill all the fields");
+
+    if (!isValidEmail(grantEmail)) {
+      return toast.error("Please enter a valid email address");
+    }
 
     if (grantEmailList.includes(grantEmail))
       return toast.error("Email already added!");
@@ -94,6 +103,7 @@ export default function Settings() {
     };
 
     try {
+      setIsAdding(true);
       const res = await axios.post(API2, body, {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -115,6 +125,8 @@ export default function Settings() {
           err.response?.data?.error ||
           "Something went wrong"
       );
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -222,6 +234,7 @@ export default function Settings() {
 
   console.log(notificationEmailsList);
 
+
   return (
     <div className="min-h-screen bg-[#0b203a] text-white p-8">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -257,8 +270,7 @@ export default function Settings() {
                 type="email"
                 placeholder="user@example.com"
                 value={grantEmail}
-                required
-                onChange={(e) => setGrantEmail(e.target.value)}
+                onChange={(e) => setGrantEmail(e.target.value.trim())}
                 className="w-full mt-1 bg-[#0b203a] border border-[#1e3a63] text-white px-4 py-3 rounded-xl outline-none"
               />
             </div>
@@ -290,9 +302,25 @@ export default function Settings() {
             {/* Add button */}
             <button
               onClick={handleAddOrgEmail}
-              className="bg-pink-600 hover:bg-pink-700 w-fit px-6 py-2.5 rounded-xl flex items-center gap-2"
+              disabled={isAdding}
+              className={`px-6 py-2.5 rounded-xl flex items-center gap-2 
+                ${
+                  isAdding
+                    ? "bg-pink-400 cursor-not-allowed"
+                    : "bg-pink-600 hover:bg-pink-700"
+                }
+            `}
             >
-              <FiPlus /> Add
+              {isAdding ? (
+                <>
+                  <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <FiPlus /> Add
+                </>
+              )}
             </button>
           </div>
 
@@ -528,11 +556,14 @@ export default function Settings() {
             <FiHelpCircle className="text-pink-400" /> Need help contact us on
           </h2>
 
-          <div className="bg-[#1e3a63] p-4 rounded-xl">
-            <p className="text-gray-300 font-semibold text-lg">
-              Support@kevlardefence.com
+          <a
+            href="mailto:support@kevlardefence.com"
+            className="block bg-[#1e3a63] p-4 rounded-xl hover:bg-[#244a80] cursor-pointer"
+          >
+            <p className="text-pink-400 font-semibold text-lg">
+              support@kevlardefense.com
             </p>
-          </div>
+          </a>
         </section>
       </div>
     </div>
