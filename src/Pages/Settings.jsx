@@ -134,6 +134,11 @@ export default function Settings() {
   const handleAddNotifyEmail = async () => {
     if (!notifyEmail.trim()) return;
 
+    if (!isValidEmail(notifyEmail.trim())) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
     if (notifyEmails.includes(notifyEmail.trim())) {
       toast.error("Email already added!");
       return;
@@ -153,6 +158,7 @@ export default function Settings() {
     };
 
     try {
+      setIsAdding(true);
       const res = await axios.put(API, body, {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -170,6 +176,8 @@ export default function Settings() {
           err.response?.data?.error ||
           "Something went wrong"
       );
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -233,7 +241,6 @@ export default function Settings() {
   }, []);
 
   console.log(notificationEmailsList);
-
 
   return (
     <div className="min-h-screen bg-[#0b203a] text-white p-8">
@@ -414,9 +421,25 @@ export default function Settings() {
 
             <button
               onClick={handleAddNotifyEmail}
-              className="bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-xl flex items-center gap-2"
+              disabled={isAdding}
+              className={`px-6 py-2.5 rounded-xl flex items-center gap-2 
+                ${
+                  isAdding
+                    ? "bg-pink-400 cursor-not-allowed"
+                    : "bg-pink-600 hover:bg-pink-700"
+                }
+            `}
             >
-              <FiPlus /> Add
+              {isAdding ? (
+                <>
+                  <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <FiPlus /> Add
+                </>
+              )}
             </button>
           </div>
 
