@@ -34,14 +34,17 @@ const AuthPage = () => {
     const fullNameParam = searchParams.get("fullName");
     const companyParam = searchParams.get("companyName");
     const countryParam = searchParams.get("country");
+    const isSignInParam = searchParams.get("isAlreadyActive");
 
     if (emailParam) {
-      setIsSignIn(false); // force signup
       setEmail(emailParam);
     }
     if (fullNameParam) setFullName(fullNameParam);
     if (companyParam) setCompanyName(companyParam);
     if (countryParam) setCountry(countryParam);
+    if (isSignInParam === "true") {
+      setIsSignIn(true);
+    }
   }, []);
 
   const navigate = useNavigate();
@@ -158,7 +161,6 @@ const AuthPage = () => {
             className={`w-1/2 py-2 font-semibold ${
               isSignIn ? "bg-[#004b74]" : "bg-transparent"
             }`}
-            onClick={() => setIsSignIn(true)}
           >
             Sign In
           </button>
@@ -167,7 +169,6 @@ const AuthPage = () => {
             className={`w-1/2 py-2 font-semibold ${
               !isSignIn ? "bg-[#004b74]" : "bg-transparent"
             }`}
-            onClick={() => setIsSignIn(false)}
           >
             Sign Up
           </button>
