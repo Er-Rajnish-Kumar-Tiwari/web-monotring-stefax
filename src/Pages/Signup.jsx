@@ -20,6 +20,7 @@ const AuthPage = () => {
   const [companyName, setCompanyName] = useState("");
   const [country, setCountry] = useState("");
   const [contactno, setContactno] = useState("");
+  const [hasParams, setHasParams] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +39,10 @@ const AuthPage = () => {
 
     if (emailParam) {
       setEmail(emailParam);
+      setHasParams(true);
     }
+
+
     if (fullNameParam) setFullName(fullNameParam);
     if (companyParam) setCompanyName(companyParam);
     if (countryParam) setCountry(countryParam);
@@ -161,6 +165,7 @@ const AuthPage = () => {
             className={`w-1/2 py-2 font-semibold ${
               isSignIn ? "bg-[#004b74]" : "bg-transparent"
             }`}
+            onClick={() => setIsSignIn(true)}
           >
             Sign In
           </button>
@@ -169,6 +174,7 @@ const AuthPage = () => {
             className={`w-1/2 py-2 font-semibold ${
               !isSignIn ? "bg-[#004b74]" : "bg-transparent"
             }`}
+            onClick={() => setIsSignIn(false)}
           >
             Sign Up
           </button>
@@ -184,7 +190,7 @@ const AuthPage = () => {
                 placeholder="Full Name"
                 className="w-full px-4 py-2 rounded bg-[#003a5c]"
                 value={fullName}
-                disabled={!isSignIn}
+                disabled={hasParams}
                 onChange={(e) => setFullName(e.target.value)}
                 required
               />
@@ -195,7 +201,7 @@ const AuthPage = () => {
                 placeholder="Company Name"
                 className="w-full px-4 py-2 rounded bg-[#003a5c]"
                 value={companyName}
-                disabled={!isSignIn}
+                disabled={hasParams}
                 onChange={(e) => setCompanyName(e.target.value)}
                 required
               />
@@ -206,7 +212,7 @@ const AuthPage = () => {
                 placeholder="Country"
                 className="w-full px-4 py-2 rounded bg-[#003a5c]"
                 value={country}
-                disabled={!isSignIn}
+                disabled={hasParams}
                 onChange={(e) => setCountry(e.target.value)}
                 required
               />
@@ -233,7 +239,7 @@ const AuthPage = () => {
             placeholder="Email"
             className="w-full px-4 py-2 rounded bg-[#003a5c]"
             value={email}
-            disabled={!isSignIn}
+            disabled={hasParams}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
