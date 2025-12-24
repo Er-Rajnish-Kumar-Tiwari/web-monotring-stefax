@@ -190,6 +190,7 @@ export default function Settings() {
       const res = await axios.delete(
         `${BASEURL}/auth/api/v1/dark-web-monitoring-users/admin/revoke-access/${userId}`
       );
+      console.log(userId);
 
       toast.success("Access revoked!");
 

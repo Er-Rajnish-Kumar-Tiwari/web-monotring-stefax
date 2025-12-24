@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 const webUserId = localStorage.getItem("webMonitoringuserId");
-  const BASEURL = import.meta.env.VITE_BASE_URL;
+const BASEURL = import.meta.env.VITE_BASE_URL;
 
 // --- Inline SVG Icons (Reliable replacements for react-icons) ---
 
@@ -165,8 +165,7 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
     e.preventDefault();
     setLoading(true);
 
-     const domainRegex = /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,10}$/;
-
+    const domainRegex = /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,10}$/;
 
     if (!domainName) {
       toast.error("Please enter a domain name!");
@@ -174,11 +173,11 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
       return;
     }
 
-     if (!domainRegex.test(domainName)) {
-    toast.error("Invalid Domain Format. Please Enter the Correct Domain!");
-    setLoading(false);
-    return;
-  }
+    if (!domainRegex.test(domainName)) {
+      toast.error("Invalid Domain Format. Please Enter the Correct Domain!");
+      setLoading(false);
+      return;
+    }
 
     if (!frequency) {
       toast.error("Please select a monitoring frequency!");
@@ -216,7 +215,9 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
             `${breaches.length} breach(es) found! Please check the incidents page.`
           );
         } else {
-          toast.info(response.data.message || "No breaches found during the check.");
+          toast.info(
+            response.data.message || "No breaches found during the check."
+          );
         }
       } else {
         // Normal monitoring mode with custom messages
@@ -422,7 +423,9 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
               `${breaches.length} breach(es) found! Please check the incidents page.`
             );
           } else {
-            toast.info(res.data.message || "No breaches found during the check.");
+            toast.info(
+              res.data.message || "No breaches found during the check."
+            );
           }
         } else {
           // ✅ Frequency-based success messages
@@ -477,7 +480,9 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
               `${breaches.length} breach(es) found! Please check the incidents page.`
             );
           } else {
-            toast.info(res.data.message  || "No breaches found during the check.");
+            toast.info(
+              res.data.message || "No breaches found during the check."
+            );
           }
         } else {
           // ✅ Frequency-based success messages
@@ -503,7 +508,11 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to start monitoring. Please try again.");
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }

@@ -29,6 +29,30 @@ const AuthPage = () => {
   const [otp, setOtp] = useState("");
   const BASEURL = import.meta.env.VITE_BASE_URL;
   const [searchParams] = useSearchParams();
+  const CHECK_USER_EXIST_URL = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/me/isActive/${email}`;
+
+  useEffect(() => {
+    if (!email) return;
+
+    const delayDebounce = setTimeout(async () => {
+      try {
+        const res = await axios.get(
+          `${BASEURL}/auth/api/v1/dark-web-monitoring-users/me/isActive/${email}`
+        );
+
+        // API true / false ke base par
+        if (res.data === true) {
+          setIsSignIn(true); // Sign In
+        } else {
+          setIsSignIn(false); // Sign Up
+        }
+      } catch (error) {
+        console.log("User check failed");
+      }
+    }, 500); // debounce
+
+    return () => clearTimeout(delayDebounce);
+  }, [email]);
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -42,13 +66,9 @@ const AuthPage = () => {
       setHasParams(true);
     }
 
-
     if (fullNameParam) setFullName(fullNameParam);
     if (companyParam) setCompanyName(companyParam);
     if (countryParam) setCountry(countryParam);
-    if (isSignInParam === "true") {
-      setIsSignIn(true);
-    }
   }, []);
 
   const navigate = useNavigate();
