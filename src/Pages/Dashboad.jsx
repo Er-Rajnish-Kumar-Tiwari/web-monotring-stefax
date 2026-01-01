@@ -25,6 +25,7 @@ const webUserId = localStorage.getItem("webMonitoringuserId");
 const Dashboards = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const BASEURL = import.meta.env.VITE_BASE_URL;
 
   const COLORS = ["#e91e63", "#ff9800", "#4caf50", "#2196f3"];
 
@@ -32,7 +33,7 @@ const Dashboards = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/dashboard?userId=${webUserId}`
+          `${BASEURL}/auth/api/v1/dark-web-monitoring/dashboard?userId=${webUserId}`
         );
         setData(res.data);
       } catch (error) {
@@ -99,8 +100,6 @@ const Dashboards = () => {
             +{data.resolvedChange}% from last month
           </p>
         </div>
-
-
       </div>
 
       {/* Charts Section */}
@@ -163,7 +162,6 @@ const Dashboards = () => {
       </div>
 
       {/* Bottom Card */}
-
     </div>
   );
 };

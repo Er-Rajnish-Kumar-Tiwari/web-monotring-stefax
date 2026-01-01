@@ -46,7 +46,6 @@ const App = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/web-dashboard" element={<Dashboards />} />
             <Route path="/profile" element={<Profile/>} />
-            <Route path="/super-admin" element={<SuperAdmin />} />
 
             {/* Signup tab ko hide karna after login */}
             <Route path="/signup" element={<Navigate to="/" />} />

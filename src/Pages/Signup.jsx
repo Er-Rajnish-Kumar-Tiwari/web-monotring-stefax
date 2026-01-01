@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import bgImage from "../Pages/bg-new1.jpg";
 import logo from "../Pages/logo.png";
-import PhoneInput from "react-phone-input-2";
+import { PhoneInput } from "react-international-phone";
+import "react-international-phone/style.css";
 
 const AuthPage = () => {
-  const [isSignIn, setIsSignIn] = useState(true);
+  const [isSignIn, setIsSignIn] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   // Shared inputs
@@ -19,24 +20,65 @@ const AuthPage = () => {
   const [companyName, setCompanyName] = useState("");
   const [country, setCountry] = useState("");
   const [contactno, setContactno] = useState("");
+  const [hasParams, setHasParams] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
   // OTP popup state
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [otp, setOtp] = useState("");
+  const BASEURL = import.meta.env.VITE_BASE_URL;
+  const [searchParams] = useSearchParams();
+  const CHECK_USER_EXIST_URL = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/me/isActive/${email}`;
+
+  useEffect(() => {
+    if (!email) return;
+
+    const delayDebounce = setTimeout(async () => {
+      try {
+        const res = await axios.get(
+          `${BASEURL}/auth/api/v1/dark-web-monitoring-users/me/isActive/${email}`
+        );
+
+        // API true / false ke base par
+        if (res.data === true) {
+          setIsSignIn(true); // Sign In
+        } else {
+          setIsSignIn(false); // Sign Up
+        }
+      } catch (error) {
+        console.log("User check failed");
+      }
+    }, 500); // debounce
+
+    return () => clearTimeout(delayDebounce);
+  }, [email]);
+
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    const fullNameParam = searchParams.get("fullName");
+    const companyParam = searchParams.get("companyName");
+    const countryParam = searchParams.get("country");
+    const isSignInParam = searchParams.get("isAlreadyActive");
+
+    if (emailParam) {
+      setEmail(emailParam);
+      setHasParams(true);
+    }
+
+    if (fullNameParam) setFullName(fullNameParam);
+    if (companyParam) setCompanyName(companyParam);
+    if (countryParam) setCountry(countryParam);
+  }, []);
 
   const navigate = useNavigate();
 
-  const SIGNUP_URL =
-    "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/signup";
+  const SIGNUP_URL = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/signup`;
 
-  const LOGIN_URL =
-    "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/login";
+  const LOGIN_URL = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/login`;
 
-  const VERIFY_OTP_URL = `http://13.50.233.20:7001/auth/api/v1/otp/verify?email=${encodeURIComponent(
-    email
-  )}&otp=${otp}`;
+  const VERIFY_OTP_URL = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/verify-otp`;
+
   // ----------------------------------------
   // SUBMIT FUNCTION (SignIn / SignUp)
   // ----------------------------------------
@@ -85,14 +127,12 @@ const AuthPage = () => {
 
       // 👉 OPEN OTP BOX ONLY FOR SIGNUP
       setShowOtpPopup(true);
-
     } catch (error) {
       alert(error?.response?.data?.message || "Something went wrong!");
     }
 
     setLoading(false);
   };
-
 
   // ----------------------------------------
   // OTP VERIFY FUNCTION
@@ -104,22 +144,16 @@ const AuthPage = () => {
     }
 
     try {
-      const userId = localStorage.getItem("webMonitoringTempUser");
-
       const response = await axios.post(VERIFY_OTP_URL, {
-        user: userId,
+        email: email, // from state
         otp: otp,
       });
 
       toast.success("Email Verified Successfully!");
 
-      // ✅ OTP popup close
       setShowOtpPopup(false);
-
-      // ✅ Success popup open
       setShowSuccessPopup(true);
 
-      // ⏳ 2 sec delay → redirect
       setTimeout(() => {
         navigate("/web-dashboard");
         window.location.reload();
@@ -174,6 +208,7 @@ const AuthPage = () => {
                 placeholder="Full Name"
                 className="w-full px-4 py-2 rounded bg-[#003a5c]"
                 value={fullName}
+                disabled={hasParams}
                 onChange={(e) => setFullName(e.target.value)}
                 required
               />
@@ -184,6 +219,7 @@ const AuthPage = () => {
                 placeholder="Company Name"
                 className="w-full px-4 py-2 rounded bg-[#003a5c]"
                 value={companyName}
+                disabled={hasParams}
                 onChange={(e) => setCompanyName(e.target.value)}
                 required
               />
@@ -194,6 +230,7 @@ const AuthPage = () => {
                 placeholder="Country"
                 className="w-full px-4 py-2 rounded bg-[#003a5c]"
                 value={country}
+                disabled={hasParams}
                 onChange={(e) => setCountry(e.target.value)}
                 required
               />
@@ -201,18 +238,13 @@ const AuthPage = () => {
               {/* Contact */}
               <div className="bg-[#003a5c] rounded px-2 py-1">
                 <PhoneInput
-                  country={"in"}
+                  defaultCountry="in"
                   value={contactno}
                   onChange={(phone) => setContactno(phone)}
-                  inputStyle={{
-                    width: "100%",
-                    background: "#003a5c",
-                    border: "none",
-                    color: "white",
-                  }}
-                  buttonStyle={{
-                    background: "#002b46",
-                    border: "none",
+                  inputClassName="w-full !bg-[#003a5c] !border-none !text-white"
+                  countrySelectorStyleProps={{
+                    buttonClassName:
+                      "!bg-[#002b46] !border-none !text-white bg-[#003a5c]",
                   }}
                 />
               </div>
@@ -225,6 +257,7 @@ const AuthPage = () => {
             placeholder="Email"
             className="w-full px-4 py-2 rounded bg-[#003a5c]"
             value={email}
+            disabled={hasParams}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
@@ -240,7 +273,10 @@ const AuthPage = () => {
           />
 
           <div className="flex justify-end">
-            <p className="text-gray-300 text-sm underline cursor-pointer mr-2" onClick={() => navigate("/forgot")}>
+            <p
+              className="text-gray-300 text-sm underline cursor-pointer mr-2"
+              onClick={() => navigate("/forgot")}
+            >
               Forgot Password
             </p>
           </div>

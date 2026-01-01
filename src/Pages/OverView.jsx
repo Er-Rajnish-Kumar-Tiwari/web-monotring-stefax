@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 const webUserId = localStorage.getItem("webMonitoringuserId");
+const BASEURL = import.meta.env.VITE_BASE_URL;
 
 // --- Inline SVG Icons (Reliable replacements for react-icons) ---
 
@@ -165,7 +166,6 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
 
     const domainRegex = /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,10}$/;
 
-
     if (!domainName) {
       toast.error("Please enter a domain name!");
       setLoading(false);
@@ -197,7 +197,7 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
 
     try {
       const response = await axios.post(
-        "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/watch/domain",
+        `${BASEURL}/auth/api/v1/dark-web-monitoring/watch/domain`,
         payload,
         {
           headers: { "Content-Type": "application/json" },
@@ -214,7 +214,9 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
             `${breaches.length} breach(es) found! Please check the incidents page.`
           );
         } else {
-          toast.info(response.data.message || "No breaches found during the check.");
+          toast.info(
+            response.data.message || "No breaches found during the check."
+          );
         }
       } else {
         // Normal monitoring mode with custom messages
@@ -403,7 +405,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
         };
 
         const res = await axios.post(
-          "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/watch",
+          `${BASEURL}/auth/api/v1/dark-web-monitoring/watch`,
           body,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -419,7 +421,9 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
               `${breaches.length} breach(es) found! Please check the incidents page.`
             );
           } else {
-            toast.info(res.data.message || "No breaches found during the check.");
+            toast.info(
+              res.data.message || "No breaches found during the check."
+            );
           }
         } else {
           // ✅ Frequency-based success messages
@@ -461,7 +465,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
         formData.append("checkNow", checkNow);
 
         const res = await axios.post(
-          "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/watch/email/upload",
+          `${BASEURL}/auth/api/v1/dark-web-monitoring/watch/email/upload`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -474,7 +478,9 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
               `${breaches.length} breach(es) found! Please check the incidents page.`
             );
           } else {
-            toast.info(res.data.message || "No breaches found during the check.");
+            toast.info(
+              res.data.message || "No breaches found during the check."
+            );
           }
         } else {
           // ✅ Frequency-based success messages
@@ -500,7 +506,11 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to start monitoring. Please try again.");
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -517,7 +527,7 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
   const handleTemplateDownload = async () => {
     try {
       const res = await axios.get(
-        "http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring/watch/email/template",
+        `${BASEURL}/auth/api/v1/dark-web-monitoring/watch/email/template`,
         {
           responseType: "blob", // IMPORTANT
         }
@@ -682,7 +692,7 @@ const Overview = () => {
   const [emailsFornoti, setEmailsForNoti] = useState([]);
 
   const fetchUserProfile = async () => {
-    const API = `http://13.50.233.20:7001/auth/api/v1/dark-web-monitoring-users/${webUserId}`;
+    const API = `${BASEURL}/auth/api/v1/dark-web-monitoring-users/${webUserId}`;
 
     const authToken = localStorage.getItem("webMonitoringToken");
 

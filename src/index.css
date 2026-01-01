@@ -17,7 +17,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Averta CY', sans-serif;
+  font-family: 'Averta', sans-serif;
 }
 
 @layer base{
@@ -29,6 +29,7 @@
 ::-webkit-scrollbar{
   display: none;
 }
+
 
 .rich-text { font-size: 15px; color: #7A7B7D; }
 
