@@ -45,9 +45,8 @@ const SeverityBadge = ({ severity }) => {
   };
   return (
     <span
-      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-        colorMap[severity] || "bg-gray-700 text-gray-200"
-      }`}
+      className={`px-3 py-1 text-xs font-semibold rounded-full ${colorMap[severity] || "bg-gray-700 text-gray-200"
+        }`}
     >
       {severity}
     </span>
@@ -62,9 +61,8 @@ const StatusBadge = ({ status }) => {
   };
   return (
     <span
-      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-        colorMap[status] || "bg-gray-700 text-gray-300"
-      }`}
+      className={`px-3 py-1 text-xs font-semibold rounded-full ${colorMap[status] || "bg-gray-700 text-gray-300"
+        }`}
     >
       {status}
     </span>
@@ -247,12 +245,12 @@ const IncidentManagement = () => {
         prev.map((g) =>
           g.incidentId === group.incidentId
             ? {
-                ...g,
-                incidents: g.incidents.map((inc) => ({
-                  ...inc,
-                  incidentStatus: "resolved",
-                })),
-              }
+              ...g,
+              incidents: g.incidents.map((inc) => ({
+                ...inc,
+                incidentStatus: "resolved",
+              })),
+            }
             : g
         )
       );
@@ -302,11 +300,10 @@ const IncidentManagement = () => {
                   setFilter(tab);
                   setCurrentPage(1);
                 }}
-                className={`px-4 py-1 rounded-lg font-medium text-sm ${
-                  filter === tab
+                className={`px-4 py-1 rounded-lg font-medium text-sm ${filter === tab
                     ? "bg-pink-600"
                     : "bg-blue-900 hover:bg-purple-800"
-                }`}
+                  }`}
               >
                 {tab} (
                 {
@@ -314,8 +311,8 @@ const IncidentManagement = () => {
                     tab === "All"
                       ? true
                       : tab === "Open"
-                      ? g.incidents.some((i) => i.incidentStatus === "open")
-                      : g.incidents.every(
+                        ? g.incidents.some((i) => i.incidentStatus === "open")
+                        : g.incidents.every(
                           (i) => i.incidentStatus === "resolved"
                         )
                   ).length
@@ -371,9 +368,8 @@ const IncidentManagement = () => {
 
                   const allSources =
                     uniqueSources.length > 10
-                      ? `${uniqueSources.slice(0, 10).join(", ")} ... (${
-                          uniqueSources.length - 10
-                        } more)`
+                      ? `${uniqueSources.slice(0, 10).join(", ")} ... (${uniqueSources.length - 10
+                      } more)`
                       : uniqueSources.join(", ");
 
                   const allDetected = [
@@ -427,13 +423,13 @@ const IncidentManagement = () => {
                         {group.incidents.some(
                           (i) => i.incidentStatus === "open"
                         ) && (
-                          <button
-                            onClick={() => handleResolve(group)}
-                            className="bg-gray-800 hover:bg-purple-800 px-3 py-1 rounded-md text-sm"
-                          >
-                            Resolve All
-                          </button>
-                        )}
+                            <button
+                              onClick={() => handleResolve(group)}
+                              className="bg-gray-800 hover:bg-purple-800 px-3 py-1 rounded-md text-sm"
+                            >
+                              Resolve All
+                            </button>
+                          )}
                       </td>
                     </tr>
                   );
@@ -472,11 +468,10 @@ const IncidentManagement = () => {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => p - 1)}
-                className={`px-3 py-1 rounded-md ${
-                  currentPage === 1
+                className={`px-3 py-1 rounded-md ${currentPage === 1
                     ? "bg-gray-700 cursor-not-allowed"
                     : "bg-blue-900 hover:bg-blue-700"
-                }`}
+                  }`}
               >
                 Previous
               </button>
@@ -489,11 +484,10 @@ const IncidentManagement = () => {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => p + 1)}
-                className={`px-3 py-1 rounded-md ${
-                  currentPage === totalPages
+                className={`px-3 py-1 rounded-md ${currentPage === totalPages
                     ? "bg-gray-700 cursor-not-allowed"
                     : "bg-blue-900 hover:bg-blue-700"
-                }`}
+                  }`}
               >
                 Next
               </button>

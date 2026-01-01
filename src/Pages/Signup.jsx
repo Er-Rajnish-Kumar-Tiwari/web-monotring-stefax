@@ -182,18 +182,16 @@ const AuthPage = () => {
         {/* Tabs */}
         <div className="flex bg-[#003a5c] rounded-lg overflow-hidden mb-6">
           <button
-            className={`w-1/2 py-2 font-semibold ${
-              isSignIn ? "bg-[#004b74]" : "bg-transparent"
-            }`}
+            className={`w-1/2 py-2 font-semibold ${isSignIn ? "bg-[#004b74]" : "bg-transparent"
+              }`}
             onClick={() => setIsSignIn(true)}
           >
             Sign In
           </button>
 
           <button
-            className={`w-1/2 py-2 font-semibold ${
-              !isSignIn ? "bg-[#004b74]" : "bg-transparent"
-            }`}
+            className={`w-1/2 py-2 font-semibold ${!isSignIn ? "bg-[#004b74]" : "bg-transparent"
+              }`}
             onClick={() => setIsSignIn(false)}
           >
             Sign Up

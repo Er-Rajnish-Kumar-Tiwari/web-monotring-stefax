@@ -123,10 +123,9 @@ const MonitoringFrequency = ({ selected, setSelected }) => {
           />
           <span
             className={`w-4 h-4 rounded-full border-2 transition-colors duration-200
-              ${
-                selected === option
-                  ? "border-pink-500 bg-pink-500"
-                  : "border-gray-500 bg-transparent"
+              ${selected === option
+                ? "border-pink-500 bg-pink-500"
+                : "border-gray-500 bg-transparent"
               }
             `}
           ></span>
@@ -310,11 +309,10 @@ const DomainMonitoringForm = ({ emailsFornoti }) => {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
-          loading
+        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${loading
             ? "bg-gray-700 cursor-not-allowed"
             : "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500"
-        }`}
+          }`}
       >
         {loading && (
           <svg
@@ -581,22 +579,20 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
         <button
           type="button"
           onClick={() => setUploadMode("manual")}
-          className={`px-4 py-2 rounded-lg border ${
-            uploadMode === "manual"
+          className={`px-4 py-2 rounded-lg border ${uploadMode === "manual"
               ? "bg-pink-600 text-white border-pink-600"
               : "border-gray-600 text-gray-300 hover:bg-gray-700"
-          }`}
+            }`}
         >
           Manual Entry
         </button>
         <button
           type="button"
           onClick={() => setUploadMode("upload")}
-          className={`px-4 py-2 rounded-lg border ${
-            uploadMode === "upload"
+          className={`px-4 py-2 rounded-lg border ${uploadMode === "upload"
               ? "bg-pink-600 text-white border-pink-600"
               : "border-gray-600 text-gray-300 hover:bg-gray-700"
-          }`}
+            }`}
         >
           Upload by Excel/CSV
         </button>
@@ -655,11 +651,10 @@ const EmailMonitoringForm = ({ emailsFornoti }) => {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
-          loading
+        className={`w-full py-3 mt-8 text-lg font-semibold rounded-lg text-white shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 ${loading
             ? "bg-gray-700 cursor-not-allowed"
             : "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500"
-        }`}
+          }`}
       >
         {loading && (
           <svg
@@ -742,10 +737,9 @@ const Overview = () => {
               <button
                 onClick={() => setActiveFormTab("domain")}
                 className={`flex-1 flex items-center justify-center py-3 text-sm font-medium transition-all duration-300 rounded-lg
-                  ${
-                    activeFormTab === "domain"
-                      ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl"
-                      : "text-gray-400 hover:text-white"
+                  ${activeFormTab === "domain"
+                    ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl"
+                    : "text-gray-400 hover:text-white"
                   }
                 `}
               >
@@ -756,10 +750,9 @@ const Overview = () => {
               <button
                 onClick={() => setActiveFormTab("email")}
                 className={`flex-1 flex items-center justify-center py-3 text-sm font-medium transition-all duration-300 rounded-lg
-                  ${
-                    activeFormTab === "email"
-                      ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl"
-                      : "text-gray-400 hover:text-white"
+                  ${activeFormTab === "email"
+                    ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl"
+                    : "text-gray-400 hover:text-white"
                   }
                 `}
               >

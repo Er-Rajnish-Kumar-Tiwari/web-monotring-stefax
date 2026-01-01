@@ -122,8 +122,8 @@ export default function Settings() {
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Something went wrong"
+        err.response?.data?.error ||
+        "Something went wrong"
       );
     } finally {
       setIsAdding(false);
@@ -173,8 +173,8 @@ export default function Settings() {
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Something went wrong"
+        err.response?.data?.error ||
+        "Something went wrong"
       );
     } finally {
       setIsAdding(false);
